@@ -1,7 +1,8 @@
 from alembic import context
 from logging.config import fileConfig
+import os
 from sqlalchemy import engine_from_config, pool
-from src.db.models import Base
+
 from dotenv import load_dotenv
 
 load_dotenv(".env")
@@ -9,14 +10,13 @@ load_dotenv(".env")
 config = context.config
 fileConfig(config.config_file_name)
 
-target_metadata = Base.metadata
+# подключение через DSN
+config.set_main_option("sqlalchemy.url", os.getenv("POSTGRES_DSN_SYNC"))
 
 
 def run_migrations_offline():
-    url = config.get_main_option("sqlalchemy.url")
     context.configure(
-        url=url,
-        target_metadata=target_metadata,
+        url=config.get_main_option("sqlalchemy.url"),
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
     )
@@ -31,7 +31,7 @@ def run_migrations_online():
         poolclass=pool.NullPool,
     )
     with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata)
+        context.configure(connection=connection)
         with context.begin_transaction():
             context.run_migrations()
 

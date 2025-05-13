@@ -2,8 +2,8 @@ name: ai-health
 services:
   app:
     build:
-      context: ../ai-health-bot
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: .docker/Dockerfile
     container_name: ai-health-app
     depends_on:
       db:
@@ -16,8 +16,8 @@ services:
   
   migrations:
     build:
-      context: ../ai-health-bot
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: .docker/Dockerfile
     command: ["alembic", "upgrade", "head"]
     container_name: ai-health-migrations
     depends_on:

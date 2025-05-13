@@ -1,7 +1,7 @@
 import asyncio
 from aiogram import Bot, Dispatcher
 
-import config
+from src import config
 from src.bot.scheduler import setup_scheduler
 from src.bot.handlers.greeting_quiz import router as greeting_router
 from src.bot.handlers.daily_quiz import router as daily_router

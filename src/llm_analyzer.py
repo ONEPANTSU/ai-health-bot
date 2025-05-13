@@ -1,7 +1,8 @@
 from langchain.chat_models import ChatOpenAI
 from langchain_core.messages import HumanMessage
 
-import config
+from src import config
+
 
 llm = ChatOpenAI(
     model="gpt-4-vision-preview",
@@ -12,7 +13,10 @@ llm = ChatOpenAI(
 
 
 async def analyze_patient(
-    username: str, answers: str, media_urls: list[str], history_blocks: list[str] = None
+    username: str,
+    answers: str,
+    media_urls: list[str],
+    history_blocks: list[str] = None
 ) -> str:
     """
     Отправляет текст анкеты + изображения + историю пациента в GPT-4-Vision
@@ -30,8 +34,13 @@ async def analyze_patient(
 
     content = [{"type": "text", "text": prompt_text}]
     for url in media_urls:
-        content.append({"type": "image_url", "image_url": {"url": url}})
+        content.append({
+            "type": "image_url",
+            "image_url": {"url": url}
+        })
 
-    response = await llm.ainvoke([HumanMessage(content=content)])
+    response = await llm.ainvoke([
+        HumanMessage(content=content)
+    ])
 
     return response.content

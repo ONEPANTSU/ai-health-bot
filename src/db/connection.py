@@ -1,5 +1,5 @@
 import asyncpg
-import config
+from src import config
 
 
 async def get_db_connection():
