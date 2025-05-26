@@ -1,0 +1,54 @@
+name: ai-health
+services:
+  app:
+    build:
+      context: ../ai-health-bot
+      dockerfile: Dockerfile
+    container_name: ai-health-app
+    depends_on:
+      db:
+        condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
+    networks:
+      - ai-health
+
+  
+  migrations:
+    build:
+      context: ../ai-health-bot
+      dockerfile: Dockerfile
+    command: ["alembic", "upgrade", "head"]
+    container_name: ai-health-migrations
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - ai-health
+
+  db:
+    image: postgres:15
+    container_name: ai-health-db
+    environment:
+      POSTGRES_DB: aihealth
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5435:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ai-health
+
+volumes:
+  db-data:
+    driver: local
+
+networks:
+  ai-health:
+    driver: bridge
