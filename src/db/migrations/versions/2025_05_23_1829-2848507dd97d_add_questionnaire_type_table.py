@@ -63,8 +63,6 @@ def upgrade() -> None:
     op.create_foreign_key(
         None, "patient_history", "questionnaires", ["questionnaire_id"], ["id"]
     )
-    op.drop_column("patient_history", "username")
-    op.drop_column("patient_history", "questionnaire_type")
     op.alter_column(
         "patients",
         "username",
