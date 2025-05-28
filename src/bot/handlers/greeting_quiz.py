@@ -5,6 +5,7 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
+from src.llm_analyzer import dispatch_to_llm
 from src.bot.is_test_allowed import is_test_day_allowed
 from src.bot.keyboards import get_gender_keyboard
 from src.bot.scheduler import get_user_timezone
@@ -40,7 +41,8 @@ async def save_greeting_data(telegram_id: int, data: dict):
 
 
 @router.message(Command("start"))
-async def handle_start(msg: Message, bot: Bot):
+async def handle_start(msg: Message, bot: Bot, state: FSMContext):
+    await state.clear()
     conn = await get_db_connection()
 
     # Пытаемся автоматически определить часовой пояс
@@ -58,10 +60,10 @@ async def handle_start(msg: Message, bot: Bot):
     await conn.close()
 
 
-@router.message(Command("start_greeting"))
+@router.message(Command("greeting"))
 async def start_greeting(message: Message, state: FSMContext):
     if not is_test_day_allowed("greeting"):
-        await message.answer("⏳ Анкета приветствия доступна только 1 числа месяца")
+        await message.answer("⏳ Анкета приветствия сегодня не доступна.")
         return
     await message.answer("АНКЕТА ПРИВЕТСТВИЯ\n\nФИО*:")
     await state.set_state(GreetingQuestionnaire.FULL_NAME)
@@ -136,6 +138,7 @@ async def process_weight(message: Message, state: FSMContext):
         return
 
     data = await state.get_data()
+    q_type = "greeting"
     data["questionnaire_type"] = "greeting"
 
     await save_greeting_data(message.from_user.id, data)
@@ -150,4 +153,17 @@ async def process_weight(message: Message, state: FSMContext):
         f"Рост: {data['height']} см\n"
         f"Вес: {message.text} кг"
     )
+    try:
+        llm_response = await dispatch_to_llm(
+            username=message.from_user.username or message.from_user.full_name,
+            telegram_id=message.from_user.id,
+            current_record={
+                "questionnaire_type": q_type,
+                "answers": data
+            },
+            media_urls=[]
+        )
+        await message.answer(f"🤖 Рекомендации от AI:\n\n{llm_response}")
+    except Exception as e:
+        await message.answer(f"⚠️ Не удалось получить рекомендации от AI:\n{e}")
     await state.clear()

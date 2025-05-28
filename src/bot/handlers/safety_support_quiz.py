@@ -5,6 +5,7 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
+from src.llm_analyzer import dispatch_to_llm
 from src.bot.is_test_allowed import is_test_day_allowed
 from src.bot.keyboards import get_yes_no_kb, get_support_count_kb
 from src.bot.states import SafetyQuestionnaire
@@ -35,11 +36,12 @@ async def save_safety_data(telegram_id: int, data: dict):
     await conn.close()
 
 
-@router.message(Command("start_safety"))
+@router.message(Command("safety"))
 async def start_safety_questionnaire(message: Message, state: FSMContext):
+    await state.clear()
     if not is_test_day_allowed("safety"):
         await message.answer(
-            "⏳ Анкета чувства безопасности и поддержки доступна только 16 числа месяца"
+            "⏳ Анкета чувства безопасности и поддержки сегодня не доступна."
         )
         return
     await message.answer(
@@ -90,7 +92,8 @@ async def process_feels_safe(message: Message, state: FSMContext):
 
     await state.update_data(feels_safe=message.text.capitalize())
     data = await state.get_data()
-    data["questionnaire_type"] = "safety_support"
+    q_type = "safety_support"
+    data["questionnaire_type"] = q_type
 
     # Сохраняем результаты
     conn = await get_db_connection()
@@ -116,4 +119,17 @@ async def process_feels_safe(message: Message, state: FSMContext):
     )
 
     await message.answer(report)
+    try:
+        llm_response = await dispatch_to_llm(
+            username=message.from_user.username or message.from_user.full_name,
+            telegram_id=message.from_user.id,
+            current_record={
+                "questionnaire_type": q_type,
+                "answers": data
+            },
+            media_urls=[]
+        )
+        await message.answer(f"🤖 Рекомендации от AI:\n\n{llm_response}")
+    except Exception as e:
+        await message.answer(f"⚠️ Не удалось получить рекомендации от AI:\n{e}")
     await state.clear()

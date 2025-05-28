@@ -5,6 +5,7 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
+from src.llm_analyzer import dispatch_to_llm
 from src.bot.keyboards import (
     get_sleep_time_kb,
     get_sleep_quality_kb,
@@ -28,6 +29,7 @@ router = Router()
 
 @router.message(Command("daily"))
 async def start_daily_questionnaire(message: Message, state: FSMContext):
+    await state.clear()
     await message.answer(
         "Ежедневная анкета:\n1. Во сколько Вы вчера легли спать?",
         reply_markup=get_sleep_time_kb(),
@@ -316,7 +318,8 @@ async def process_after_work_feeling(message: Message, state: FSMContext):
 
     await state.update_data(after_work_feeling=message.text)
     data = await state.get_data()
-    data["questionnaire_type"] = "daily"
+    q_type = "daily"
+    data["questionnaire_type"] = q_type
 
     # Сохранение в БД
     conn = await get_db_connection()
@@ -331,4 +334,17 @@ async def process_after_work_feeling(message: Message, state: FSMContext):
     )
 
     await message.answer("✅ Анкета успешно сохранена! Спасибо за участие!")
+    try:
+        llm_response = await dispatch_to_llm(
+            username=message.from_user.username or message.from_user.full_name,
+            telegram_id=message.from_user.id,
+            current_record={
+                "questionnaire_type": q_type,
+                "answers": data
+            },
+            media_urls=[]
+        )
+        await message.answer(f"🤖 Рекомендации от AI:\n\n{llm_response}")
+    except Exception as e:
+        await message.answer(f"⚠️ Не удалось получить рекомендации от AI:\n{e}")
     await state.clear()
