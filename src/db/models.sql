@@ -12,11 +12,9 @@ CREATE TABLE IF NOT EXISTS patients (
 CREATE TABLE IF NOT EXISTS patient_history (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     patient_id UUID REFERENCES patients(id),
-    username TEXT,
+    answers JSONB NOT NULL,
     created_at TIMESTAMP DEFAULT now(),
-    answers TEXT,
     gpt_response TEXT,
     s3_files TEXT[],
     summary TEXT
 );
-
