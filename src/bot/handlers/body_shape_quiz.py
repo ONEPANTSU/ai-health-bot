@@ -6,6 +6,7 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
+from src.llm_analyzer import dispatch_to_llm
 from src.bot.is_test_allowed import is_test_day_allowed
 from src.bot.states import BodyQuestionnaire
 from src.db.connection import get_db_connection
@@ -34,12 +35,11 @@ async def save_body_data(telegram_id: int, data: dict):
     )
 
 
-@router.message(Command("start_body_measurements"))
+@router.message(Command("body_measurements"))
 async def start_body_questionnaire(message: Message, state: FSMContext):
+    await state.clear()
     if not is_test_day_allowed("body"):
-        await message.answer(
-            "⏳ Анкета телосложения не предназначена для заполнения сегодня"
-        )
+        await message.answer("⏳ Анкета телосложения сегодня не доступна.")
         return
     await message.answer("АНКЕТА ТЕЛОСЛОЖЕНИЯ\n\nОкружность талии (в см):")
     await state.set_state(BodyQuestionnaire.WAIST)
@@ -84,9 +84,9 @@ async def process_chest(message: Message, state: FSMContext):
     ):
         await message.answer("Пожалуйста, введите корректное значение (50-200 см)")
         return
-
+    q_type = "body_shape"
     data = await state.get_data()
-    data["questionnaire_type"] = "body_shape"
+    data["questionnaire_type"] = q_type
 
     data["chest"] = float(message.text)
     await save_body_data(message.from_user.id, data)
@@ -97,4 +97,18 @@ async def process_chest(message: Message, state: FSMContext):
         f"Бёдра: {data['hips']} см\n"
         f"Грудь: {data['chest']} см"
     )
+    try:
+        llm_response = await dispatch_to_llm(
+            username=message.from_user.username or message.from_user.full_name,
+            telegram_id=message.from_user.id,
+            current_record={
+                "questionnaire_type": q_type,
+                "answers": data
+            },
+            media_urls=[]
+        )
+        await message.answer(f"🤖 Рекомендации от AI:\n\n{llm_response}")
+    except Exception as e:
+        await message.answer(f"⚠️ Не удалось получить рекомендации от AI:\n{e}")
+
     await state.clear()

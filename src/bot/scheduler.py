@@ -56,9 +56,9 @@ async def send_greeting_questionnaire(bot: Bot):
         try:
             await bot.send_message(
                 chat_id=user["telegram_id"],
-                text="⏰ Пожалуйста, заполните анкету приветствия: /start_greeting",
+                text="⏰ Пожалуйста, заполните анкету приветствия: /greeting",
                 reply_markup=ReplyKeyboardMarkup(
-                    keyboard=[[KeyboardButton(text="/start_greeting")]],
+                    keyboard=[[KeyboardButton(text="/greeting")]],
                     resize_keyboard=True,
                 ),
             )
@@ -89,9 +89,9 @@ async def send_body_questionnaire(bot: Bot):
         try:
             await bot.send_message(
                 chat_id=user["telegram_id"],
-                text="📏 Пожалуйста, заполните анкету телосложения: /start_body_measurements",
+                text="📏 Пожалуйста, заполните анкету телосложения: /body_measurements",
                 reply_markup=ReplyKeyboardMarkup(
-                    keyboard=[[KeyboardButton(text="/start_body_measurements")]],
+                    keyboard=[[KeyboardButton(text="/body_measurements")]],
                     resize_keyboard=True,
                 ),
             )
@@ -116,9 +116,9 @@ async def send_health_questionnaire(bot: Bot):
         try:
             await bot.send_message(
                 chat_id=user["telegram_id"],
-                text="🏥 Пожалуйста, заполните анкету состояния здоровья: /start_health_questionnaire",
+                text="🏥 Пожалуйста, заполните анкету состояния здоровья: /health",
                 reply_markup=ReplyKeyboardMarkup(
-                    keyboard=[[KeyboardButton(text="/start_health_questionnaire")]],
+                    keyboard=[[KeyboardButton(text="/health")]],
                     resize_keyboard=True,
                 ),
             )
@@ -143,9 +143,9 @@ async def send_nutrition_questionnaire(bot: Bot):
         try:
             await bot.send_message(
                 chat_id=user["telegram_id"],
-                text="🍎 Пожалуйста, заполните анкету питания: /start_nutrition_questionnaire",
+                text="🍎 Пожалуйста, заполните анкету питания: /nutrition",
                 reply_markup=ReplyKeyboardMarkup(
-                    keyboard=[[KeyboardButton(text="/start_nutrition_questionnaire")]],
+                    keyboard=[[KeyboardButton(text="/nutrition")]],
                     resize_keyboard=True,
                 ),
             )
@@ -170,10 +170,10 @@ async def send_supplements_questionnaire(bot: Bot):
         try:
             await bot.send_message(
                 chat_id=user["telegram_id"],
-                text="💊 Пожалуйста, заполните анкету приема БАДов/витаминов: /start_supplements_questionnaire",
+                text="💊 Пожалуйста, заполните анкету приема БАДов/витаминов: /supplements",
                 reply_markup=ReplyKeyboardMarkup(
                     keyboard=[
-                        [KeyboardButton(text="/start_supplements_questionnaire")]
+                        [KeyboardButton(text="/supplements")]
                     ],
                     resize_keyboard=True,
                 ),
@@ -200,9 +200,9 @@ async def send_awareness_quiz(bot: Bot):
         try:
             await bot.send_message(
                 chat_id=user["telegram_id"],
-                text="🧘 Пожалуйста, заполните анкету осознанности (медитации): /start_mindfulness",
+                text="🧘 Пожалуйста, заполните анкету осознанности (медитации): /mindfulness",
                 reply_markup=ReplyKeyboardMarkup(
-                    keyboard=[[KeyboardButton(text="/start_mindfulness")]],
+                    keyboard=[[KeyboardButton(text="/mindfulness")]],
                     resize_keyboard=True,
                 ),
             )
@@ -228,9 +228,9 @@ async def send_supplements_quiz(bot: Bot):
         try:
             await bot.send_message(
                 chat_id=user["telegram_id"],
-                text="💊 Пожалуйста, заполните анкету по БАДам/витаминам: /start_supplements",
+                text="💊 Пожалуйста, заполните анкету по БАДам/витаминам: /supplements",
                 reply_markup=ReplyKeyboardMarkup(
-                    keyboard=[[KeyboardButton(text="/start_supplements")]],
+                    keyboard=[[KeyboardButton(text="/supplements")]],
                     resize_keyboard=True,
                 ),
             )
@@ -256,9 +256,9 @@ async def send_safety_support_quiz(bot: Bot):
         try:
             await bot.send_message(
                 chat_id=user["telegram_id"],
-                text="🛡️ Пожалуйста, заполните анкету безопасности и поддержки: /start_safety",
+                text="🛡️ Пожалуйста, заполните анкету безопасности и поддержки: /safety",
                 reply_markup=ReplyKeyboardMarkup(
-                    keyboard=[[KeyboardButton(text="/start_safety")]],
+                    keyboard=[[KeyboardButton(text="/safety")]],
                     resize_keyboard=True,
                 ),
             )
@@ -284,9 +284,9 @@ async def send_close_environment_quiz(bot: Bot):
         try:
             await bot.send_message(
                 chat_id=user["telegram_id"],
-                text="👨‍👩‍👧‍👦 Пожалуйста, заполните анкету близкого окружения: /start_close_circle",
+                text="👨‍👩‍👧‍👦 Пожалуйста, заполните анкету близкого окружения: /close_environment",
                 reply_markup=ReplyKeyboardMarkup(
-                    keyboard=[[KeyboardButton(text="/start_close_circle")]],
+                    keyboard=[[KeyboardButton(text="/close_environment")]],
                     resize_keyboard=True,
                 ),
             )

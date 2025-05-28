@@ -112,9 +112,7 @@ def get_workout_intensity_kb():
 
 def get_fatigue_level_kb():
     return ReplyKeyboardMarkup(
-        keyboard=[
-            *[[KeyboardButton(text=str(i))] for i in range(1, 11)],
-        ],
+        keyboard=[[KeyboardButton(text=str(i)) for i in range(0, 11)]],
         resize_keyboard=True,
     )
 

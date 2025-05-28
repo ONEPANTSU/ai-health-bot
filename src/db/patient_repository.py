@@ -56,6 +56,44 @@ async def get_recent_history(
     return history_blocks
 
 
+async def get_all_records_by_user(telegram_id: int, conn: asyncpg.Connection, limit: int = 100) -> list[dict]:
+    """
+    Возвращает все анкеты пользователя по telegram_id, отсортированные по убыванию даты.
+    Гарантирует, что answers — это dict.
+    """
+    rows = await conn.fetch(
+        """
+        SELECT ph.created_at, ph.answers, ph.gpt_response
+        FROM patient_history ph
+        JOIN patients p ON ph.patient_id = p.id
+        WHERE p.telegram_id = $1
+        ORDER BY ph.created_at DESC
+        LIMIT $2
+        """,
+        telegram_id,
+        limit,
+    )
+
+    result = []
+    for row in rows:
+        raw_answers = row["answers"]
+        if isinstance(raw_answers, str):
+            try:
+                answers = json.loads(raw_answers)
+            except json.JSONDecodeError:
+                answers = {}
+        else:
+            answers = raw_answers  # уже dict
+
+        result.append({
+            "created_at": row["created_at"],
+            "answers": answers,
+            "gpt_response": row["gpt_response"],
+            "questionnaire_type": answers.get("questionnaire_type", "unknown")
+        })
+
+    return result
+
 async def save_patient_record(
     conn: asyncpg.Connection,
     telegram_id: int,

@@ -1,7 +1,11 @@
 import asyncio
 from aiogram import Bot, Dispatcher
 
-from src import config
+import src.config as config
+
+from aiogram.client.default import DefaultBotProperties
+from aiogram.enums import ParseMode
+from aiogram.types import BotCommand
 from src.bot.scheduler import setup_scheduler
 from src.bot.handlers.greeting_quiz import router as greeting_router
 from src.bot.handlers.daily_quiz import router as daily_router
@@ -31,7 +35,21 @@ from src.bot.handlers.testing import router as testing_router
 
 
 async def main():
-    bot = Bot(token=config.BOT_TOKEN)
+    bot = Bot(token=config.BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+    commands = [
+        BotCommand(command="start", description="Начать общение с ботом (Регистрация)"),
+        BotCommand(command="greeting", description="Начать анкету приветствия"),
+        BotCommand(command="daily", description="Начать ежедневную анкету"),
+        BotCommand(command="mindfulness", description="Начать анкету осознанности"),
+        BotCommand(command="body_measurements", description="Начать анкету телосложения"),
+        BotCommand(command="close_environment", description="Начать анкету о близком окружении"),
+        BotCommand(command="nutrition", description="Начать анкету питания"),
+        BotCommand(command="safety", description="Начать анкету безопасности и поддержки"),
+        BotCommand(command="subjective_health", description="Начать анкету субъективного здоровья"),
+        BotCommand(command="supplements", description="Начать анкету добавок"),
+    ]
+    await bot.set_my_commands(commands)
+
     dp = Dispatcher()
     setup_scheduler(bot)
 

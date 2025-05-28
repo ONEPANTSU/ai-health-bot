@@ -5,6 +5,7 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
+from src.llm_analyzer import dispatch_to_llm
 from src.bot.is_test_allowed import is_test_day_allowed
 from src.bot.keyboards import (
     get_rating_10_kb,
@@ -38,11 +39,12 @@ async def save_close_circle_data(telegram_id: int, data: dict):
     await conn.close()
 
 
-@router.message(Command("start_close_circle"))
+@router.message(Command("close_environment"))
 async def start_close_circle(message: Message, state: FSMContext):
+    await state.clear()
     if not is_test_day_allowed("close_environment"):
         await message.answer(
-            "⏳ Анкета о близком окружении не предназначена для заполнения сегодня"
+            "⏳ Анкета о близком окружении сегодня не доступна."
         )
         return
     await message.answer(
@@ -96,7 +98,8 @@ async def process_communication_frequency(message: Message, state: FSMContext):
 
     await state.update_data(communication_frequency=message.text)
     data = await state.get_data()
-    data["questionnaire_type"] = "close_circle"
+    q_type = "close_circle"
+    data["questionnaire_type"] = q_type
 
     # Сохраняем результаты
     await save_close_circle_data(message.from_user.id, data)
@@ -110,4 +113,17 @@ async def process_communication_frequency(message: Message, state: FSMContext):
     )
 
     await message.answer(report)
+    try:
+        llm_response = await dispatch_to_llm(
+            username=message.from_user.username or message.from_user.full_name,
+            telegram_id=message.from_user.id,
+            current_record={
+                "questionnaire_type": q_type,
+                "answers": data
+            },
+            media_urls=[]
+        )
+        await message.answer(f"🤖 Рекомендации от AI:\n\n{llm_response}")
+    except Exception as e:
+        await message.answer(f"⚠️ Не удалось получить рекомендации от AI:\n{e}")
     await state.clear()
