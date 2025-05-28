@@ -1,43 +1,31 @@
+import json
+
 import asyncpg
 
 
 async def create_patient(
-    conn, telegram_id: int, username: str = None, full_name: str = None
+    conn,
+    telegram_id: int,
+    username: str = None,
+    full_name: str = None,
+    timezone: str = None,
 ):
+    # Если часовой пояс не указан, используем UTC
+    tz = timezone if timezone else "UTC"
+
     await conn.execute(
         """
-        INSERT INTO patients (telegram_id, username, full_name)
-        VALUES ($1, $2, $3)
-        ON CONFLICT (telegram_id) DO NOTHING
+        INSERT INTO patients (telegram_id, username, full_name, timezone)
+        VALUES ($1, $2, $3, $4)
+        ON CONFLICT (telegram_id) DO UPDATE SET
+            username = EXCLUDED.username,
+            full_name = EXCLUDED.full_name,
+            timezone = EXCLUDED.timezone
         """,
         telegram_id,
         username,
         full_name,
-    )
-
-
-async def save_patient_record(
-    conn: asyncpg.Connection,
-    telegram_id: int,
-    answers: str,
-    gpt_response: str,
-    s3_links: list[str],
-    summary: str = "",
-):
-    await conn.execute(
-        """
-        INSERT INTO patient_history (patient_id, username, answers, gpt_response, s3_files, summary)
-        VALUES (
-            (SELECT id FROM patients WHERE telegram_id = $1),
-            (SELECT username FROM patients WHERE telegram_id = $1),
-            $2, $3, $4, $5
-        )
-        """,
-        telegram_id,
-        answers,
-        gpt_response,
-        s3_links,
-        summary,
+        tz,
     )
 
 
@@ -66,3 +54,65 @@ async def get_recent_history(
         history_blocks.append(text)
 
     return history_blocks
+
+
+async def save_patient_record(
+    conn: asyncpg.Connection,
+    telegram_id: int,
+    answers: str,
+    gpt_response: str,
+    s3_links: list[str],
+    summary: str = "",
+    is_daily: bool = False,
+):
+    try:
+        answers_data = json.loads(answers)
+        questionnaire_type = answers_data.get("questionnaire_type")
+
+        if not questionnaire_type:
+            raise ValueError("questionnaire_type не указан в answers")
+
+        async with conn.transaction():
+            if is_daily:
+                # Удаляем только анкету, если она уже была заполнена сегодня
+                await conn.execute(
+                    """
+                    DELETE FROM patient_history
+                    WHERE patient_id = (SELECT id FROM patients WHERE telegram_id = $1)
+                    AND DATE(created_at) = CURRENT_DATE
+                    AND answers->>'questionnaire_type' = $2
+                    """,
+                    telegram_id,
+                    questionnaire_type,
+                )
+            else:
+                # Удаляем все предыдущие записи с этим типом анкеты
+                await conn.execute(
+                    """
+                    DELETE FROM patient_history
+                    WHERE patient_id = (SELECT id FROM patients WHERE telegram_id = $1)
+                    AND answers->>'questionnaire_type' = $2
+                    """,
+                    telegram_id,
+                    questionnaire_type,
+                )
+
+            await conn.execute(
+                """
+                INSERT INTO patient_history (
+                    patient_id, answers, gpt_response, s3_files, summary
+                ) VALUES (
+                    (SELECT id FROM patients WHERE telegram_id = $1),
+                    $2, $3, $4, $5
+                )
+                """,
+                telegram_id,
+                answers,
+                gpt_response,
+                s3_links,
+                summary,
+            )
+
+    except Exception as e:
+        print(f"Ошибка сохранения: {e}")
+        raise
