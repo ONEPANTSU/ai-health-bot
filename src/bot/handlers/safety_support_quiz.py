@@ -39,7 +39,7 @@ async def save_safety_data(telegram_id: int, data: dict):
 async def start_safety_questionnaire(message: Message, state: FSMContext):
     if not is_test_day_allowed("safety"):
         await message.answer(
-            "⏳ Анкета чувства безопасности и поддержки доступна только 16 числа месяца"
+            "⏳ Анкета чувства безопасности и поддержки не предназначена для заполнения сегодня"
         )
         return
     await message.answer(

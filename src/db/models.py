@@ -25,6 +25,7 @@ class Patient(Base):
     timezone = Column(String, default="UTC")  # Новое поле
     registered_at = Column(DateTime, server_default="now()")
     is_active = Column(Boolean, default=True)
+    testing_start_date = Column(DateTime)
 
 
 class Questionnaire(Base):

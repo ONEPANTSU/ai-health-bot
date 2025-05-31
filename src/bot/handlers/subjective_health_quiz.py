@@ -41,7 +41,7 @@ async def save_health_data(telegram_id: int, data: dict):
 async def start_health_questionnaire(message: Message, state: FSMContext):
     if not is_test_day_allowed("health"):
         await message.answer(
-            "⏳ Анкета субъективного состояния здоровья доступна только 4 числа месяца"
+            "⏳ Анкета субъективного состояния здоровья не предназначена для заполнения сегодня"
         )
         return
     await message.answer(

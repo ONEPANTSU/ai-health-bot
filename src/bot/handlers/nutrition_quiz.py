@@ -39,7 +39,9 @@ async def save_nutrition_data(telegram_id: int, data: dict):
 @router.message(Command("start_nutrition_questionnaire"))
 async def start_nutrition_questionnaire(message: Message, state: FSMContext):
     if not is_test_day_allowed("nutrition"):
-        await message.answer("⏳ Анкета питания доступна только 5 и 8 числа месяца")
+        await message.answer(
+            "⏳ Анкета питания не предназначена для заполнения сегодня"
+        )
         return
     await message.answer(
         "АНКЕТА ПИТАНИЯ\n\n"

@@ -42,7 +42,7 @@ async def save_close_circle_data(telegram_id: int, data: dict):
 async def start_close_circle(message: Message, state: FSMContext):
     if not is_test_day_allowed("close_environment"):
         await message.answer(
-            "⏳ Анкета о близком окружении доступна только 18 числа месяца"
+            "⏳ Анкета о близком окружении не предназначена для заполнения сегодня"
         )
         return
     await message.answer(

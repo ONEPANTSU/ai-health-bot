@@ -80,3 +80,59 @@ class MindfulnessQuestionnaire(StatesGroup):
     FOCUS_OBJECT = State()
     CONCENTRATION_DIFFICULTY = State()
     POSITIVE_CHANGES = State()
+
+
+class FacePhotoStates(StatesGroup):
+    waiting_face_photo = State()
+
+
+class FeetPhotoStates(StatesGroup):
+    waiting_feet_photo = State()
+
+
+class FullbodyPhotoStates(StatesGroup):
+    waiting_fullbody_photo = State()
+
+
+class WalkingVideoStates(StatesGroup):
+    waiting_walking_video = State()
+
+
+class RunningVideoStates(StatesGroup):
+    waiting_running_video = State()
+
+
+class SquatsVideoStates(StatesGroup):
+    waiting_squats_video = State()
+
+
+class NeckVideoStates(StatesGroup):
+    waiting_neck_video = State()
+
+
+class PickUpObjectStates(StatesGroup):
+    waiting_pickup_video = State()
+
+
+class HandsPhotoStates(StatesGroup):
+    waiting_hands_photo = State()
+
+
+class BalanceTestStates(StatesGroup):
+    waiting_balance_video = State()
+
+
+class EyePhotoStates(StatesGroup):
+    waiting_eye_photo = State()
+
+
+class PlankStates(StatesGroup):
+    waiting_plank_video = State()
+
+
+class TimezoneStates(StatesGroup):
+    waiting_timezone = State()
+
+
+class TestingStates(StatesGroup):
+    testing_started = State()

@@ -7,33 +7,17 @@ from src.db.connection import get_db_connection
 scheduler = AsyncIOScheduler()
 
 
-async def get_user_timezone(bot: Bot, user_id: int) -> str:
-    """Автоматически определяет часовой пояс на основе доступных данных"""
+async def get_user_timezone(user_id: int) -> str:
+    """Получает часовой пояс пользователя из базы данных"""
     try:
-        # 1. Пытаемся получить из базы, если уже сохранен
         conn = await get_db_connection()
         tz = await conn.fetchval(
             "SELECT timezone FROM patients WHERE telegram_id = $1", user_id
         )
-        if tz and tz != "UTC":
-            return tz
-
-        try:
-            user = await bot.get_chat(user_id)
-            if hasattr(user, "time_zone") and user.time_zone:
-                await conn.execute(
-                    "UPDATE patients SET timezone = $1 WHERE telegram_id = $2",
-                    user.time_zone,
-                    user_id,
-                )
-                return user.time_zone
-        except Exception:
-            pass
-
+        return tz if tz else "Europe/Moscow"  # Значение по умолчанию
     except Exception as e:
-        print(f"Ошибка определения часового пояса: {e}")
-
-    return "Europe/Moscow"
+        print(f"Ошибка получения часового пояса: {e}")
+        return "Europe/Moscow"
 
 
 async def send_daily_reminder(bot: Bot):

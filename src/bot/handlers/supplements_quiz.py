@@ -37,7 +37,7 @@ async def save_supplements_data(telegram_id: int, data: dict):
 async def start_supplements_questionnaire(message: Message, state: FSMContext):
     if not is_test_day_allowed("supplements"):
         await message.answer(
-            "⏳ Анкета приема БАДов/витаминов доступна только 11 числа месяца"
+            "⏳ Анкета приема БАДов/витаминов не предназначена для заполнения сегодня"
         )
         return
     await message.answer(

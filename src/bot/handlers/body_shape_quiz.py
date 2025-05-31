@@ -37,7 +37,9 @@ async def save_body_data(telegram_id: int, data: dict):
 @router.message(Command("start_body_measurements"))
 async def start_body_questionnaire(message: Message, state: FSMContext):
     if not is_test_day_allowed("body"):
-        await message.answer("⏳ Анкета телосложения доступна только 10 числа месяца")
+        await message.answer(
+            "⏳ Анкета телосложения не предназначена для заполнения сегодня"
+        )
         return
     await message.answer("АНКЕТА ТЕЛОСЛОЖЕНИЯ\n\nОкружность талии (в см):")
     await state.set_state(BodyQuestionnaire.WAIST)

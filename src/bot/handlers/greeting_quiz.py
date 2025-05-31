@@ -61,7 +61,9 @@ async def handle_start(msg: Message, bot: Bot):
 @router.message(Command("start_greeting"))
 async def start_greeting(message: Message, state: FSMContext):
     if not is_test_day_allowed("greeting"):
-        await message.answer("⏳ Анкета приветствия доступна только 1 числа месяца")
+        await message.answer(
+            "⏳ Анкета приветствия не предназначена для заполнения сегодня"
+        )
         return
     await message.answer("АНКЕТА ПРИВЕТСТВИЯ\n\nФИО*:")
     await state.set_state(GreetingQuestionnaire.FULL_NAME)

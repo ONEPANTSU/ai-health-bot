@@ -62,7 +62,9 @@ async def finish_questionnaire(message: Message, state: FSMContext, data: dict):
 @router.message(Command("start_mindfulness"))
 async def start_mindfulness_questionnaire(message: Message, state: FSMContext):
     if not is_test_day_allowed("mindfulness"):
-        await message.answer("⏳ Анкета осознанности доступна только 3 числа месяца")
+        await message.answer(
+            "⏳ Анкета осознанности не предназначена для заполнения сегодня"
+        )
         return
 
     await message.answer(
