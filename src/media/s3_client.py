@@ -4,7 +4,8 @@ from typing import Union
 from aiofiles import open as aio_open
 from aiobotocore.session import get_session
 
-import config
+from aiogram.types import BufferedInputFile
+from src import config
 
 
 class S3Client:
@@ -68,3 +69,15 @@ class S3Client:
                 for obj in page.get("Contents", []):
                     result.append(obj["Key"])
             return result
+
+    async def get_video_as_buffered_file(self, s3_key: str) -> BufferedInputFile:
+        async with self.session.create_client(
+            "s3",
+            endpoint_url=self.endpoint_url,
+            aws_access_key_id=self.access_key,
+            aws_secret_access_key=self.secret_key,
+        ) as client:
+            response = await client.get_object(Bucket=self.bucket_name, Key=s3_key)
+            data = await response["Body"].read()
+            filename = s3_key.split("/")[-1]
+            return BufferedInputFile(data, filename=filename)

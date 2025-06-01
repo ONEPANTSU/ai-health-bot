@@ -6,7 +6,6 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
-from src.llm_analyzer import dispatch_to_llm
 from src.bot.is_test_allowed import is_test_day_allowed
 from src.bot.states import BodyQuestionnaire
 from src.db.connection import get_db_connection
@@ -97,18 +96,4 @@ async def process_chest(message: Message, state: FSMContext):
         f"Бёдра: {data['hips']} см\n"
         f"Грудь: {data['chest']} см"
     )
-    try:
-        llm_response = await dispatch_to_llm(
-            username=message.from_user.username or message.from_user.full_name,
-            telegram_id=message.from_user.id,
-            current_record={
-                "questionnaire_type": q_type,
-                "answers": data
-            },
-            media_urls=[]
-        )
-        await message.answer(f"🤖 Рекомендации от AI:\n\n{llm_response}")
-    except Exception as e:
-        await message.answer(f"⚠️ Не удалось получить рекомендации от AI:\n{e}")
-
     await state.clear()
