@@ -16,16 +16,17 @@ async def is_test_day_allowed(test_name: str) -> bool:
     days_passed = (datetime.now() - start_date).days
 
     test_schedule = {
-        "greeting": [0],
-        "health": [3],
-        "nutrition": [4, 7],
-        "body": [9],
-        "supplements": [10],
-        "mindfulness": [13],
-        "safety": [15],
-        "close_environment": [17],
+        # "greeting": [0],
+        # "health": [3],
+        # "nutrition": [4, 7],
+        # # "body": [9],
+        # "supplements": [10],
+        # "mindfulness": [13],
+        # "safety": [15],
+        # "close_environment": [17],
     }
-
+    if test_name not in test_schedule:
+        return True
     return days_passed in test_schedule.get(test_name, [])
 
 
@@ -40,18 +41,19 @@ async def is_task_day_allowed(task_name: str) -> bool:
 
     # Расписание заданий относительно даты старта
     task_schedule = {
-        "face_photo": [1, 21],  # Через 1
-        "hands_photo": [19],
-        "fullbody_photo": [2, 16],
-        "walking": [4, 18],
-        "running": [7, 28],
-        "squats": [9],
-        "neck_exercise": [8],
-        "balance": [26],
-        "plank": [14],
-        "pickup_object": [11],
-        "feet_photo": [8, 22],
-        "eye_photo": [14],
+        # "face_photo": [1, 21],  # Через 1
+        # "hands_photo": [19],
+        # "fullbody_photo": [2, 16],
+        # "walking": [4, 18],
+        # "running": [7, 28],
+        # "squats": [9],
+        # "neck_exercise": [8],
+        # "balance": [26],
+        # "plank": [14],
+        # "pickup_object": [11],
+        # "feet_photo": [8, 22],
+        # "eye_photo": [14],
     }
-
+    if task_name not in task_schedule:
+        return True
     return days_passed in task_schedule.get(task_name, [])

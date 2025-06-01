@@ -12,6 +12,7 @@ from src.bot.keyboards import (
     get_frequency_communication_kb,
 )
 from src.bot.states import CloseCircleQuestionnaire
+from src.bot.utils import send_llm_advice
 from src.db.connection import get_db_connection
 from src.db.patient_repository import save_patient_record
 
@@ -115,4 +116,5 @@ async def process_communication_frequency(message: Message, state: FSMContext):
         report,
         reply_markup=ReplyKeyboardRemove(),
     )
+    await send_llm_advice(message, data, [])
     await state.clear()

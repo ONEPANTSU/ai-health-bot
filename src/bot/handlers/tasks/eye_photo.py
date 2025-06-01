@@ -7,6 +7,7 @@ from aiogram.fsm.context import FSMContext
 
 from src.bot.is_test_allowed import is_task_day_allowed
 from src.bot.states import EyePhotoStates
+from src.bot.utils import send_llm_advice
 from src.db.connection import get_db_connection
 from src.db.patient_repository import save_patient_record
 from src.media.s3_client import S3Client
@@ -31,23 +32,23 @@ async def send_eye_instructions(message: Message, state: FSMContext):
     s3_key = "tasks-examples/eye.jpg"
     try:
         media = await s3_client.get_media_as_buffered_file(s3_key)
-
-        await message.answer_video(
+        caption = (
+            "<b>Макрофото глаза</b>\n\n"
+            "<b>Требования к фото:</b>\n"
+            "1. Сфотографируйте один глаз крупным планом\n"
+            "2. Используйте хорошее освещение без бликов\n"
+            "3. Фокус должен быть на радужной оболочке\n"
+            "4. Избегайте теней на глазу\n"
+            "5. Глаз должен быть открыт естественно\n\n"
+            "<b>Советы:</b>\n"
+            "- Используйте макрорежим камеры\n"
+            "- Снимайте при дневном свете\n"
+            "- Держите камеру устойчиво\n"
+            "- Сделайте несколько снимков для выбора лучшего"
+        )
+        await message.answer_photo(
             photo=media,
-            caption=(
-                "<b>Макрофото глаза</b>\n\n"
-                "<b>Требования к фото:</b>\n"
-                "1. Сфотографируйте один глаз крупным планом\n"
-                "2. Используйте хорошее освещение без бликов\n"
-                "3. Фокус должен быть на радужной оболочке\n"
-                "4. Избегайте теней на глазу\n"
-                "5. Глаз должен быть открыт естественно\n\n"
-                "<b>Советы:</b>\n"
-                "- Используйте макрорежим камеры\n"
-                "- Снимайте при дневном свете\n"
-                "- Держите камеру устойчиво\n"
-                "- Сделайте несколько снимков для выбора лучшего",
-            ),
+            caption=caption,
             parse_mode="HTML",
         )
     except Exception as e:
@@ -69,7 +70,7 @@ async def handle_eye_photo(message: Message, state: FSMContext):
         await message.bot.download_file(file.file_path, destination=str(photo_path))
 
         # Сохраняем в S3
-        s3_url = await s3_client.upload_file(
+        s3_key = await s3_client.upload_file(
             file_path=str(photo_path),
             username=username,
             filename="eye.jpg",
@@ -86,7 +87,7 @@ async def handle_eye_photo(message: Message, state: FSMContext):
                 answers, ensure_ascii=False
             ),  # Преобразуем в JSON строку
             gpt_response="",
-            s3_links=[s3_url],
+            s3_links=[s3_key],
             summary="Макрофото глаза",
             is_daily=False,
         )
@@ -98,6 +99,7 @@ async def handle_eye_photo(message: Message, state: FSMContext):
             "- Четкость радужной оболочки\n"
             "- Наличие покраснений"
         )
+        await send_llm_advice(message, {}, [s3_key])
         await state.clear()
 
     except Exception as e:
