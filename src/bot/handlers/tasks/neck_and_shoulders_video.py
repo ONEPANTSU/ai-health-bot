@@ -21,7 +21,7 @@ temp_dir = current_dir / "temp"
 temp_dir.mkdir(exist_ok=True)
 
 
-@router.message(Command("neck_exercise_instructions"))
+@router.message(Command("neck"))
 async def send_neck_instructions(message: Message, state: FSMContext):
     if not is_test_day_allowed("neck_exercise"):
         await message.answer(

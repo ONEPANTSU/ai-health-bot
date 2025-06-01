@@ -22,7 +22,7 @@ temp_dir = current_dir / "temp"
 temp_dir.mkdir(exist_ok=True)
 
 
-@router.message(Command("pickup_object_instructions"))
+@router.message(Command("picking_up"))
 async def send_pickup_instructions(message: Message, state: FSMContext):
     if not is_test_day_allowed("pickup_object"):
         await message.answer(

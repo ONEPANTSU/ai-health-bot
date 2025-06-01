@@ -21,7 +21,7 @@ temp_dir = current_dir / "temp"
 temp_dir.mkdir(exist_ok=True)
 
 
-@router.message(Command("squats_instructions"))
+@router.message(Command("squats"))
 async def send_squats_instructions(message: Message, state: FSMContext):
     if not is_test_day_allowed("squats"):
         await message.answer(

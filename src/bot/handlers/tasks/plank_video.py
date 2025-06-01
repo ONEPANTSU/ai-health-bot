@@ -23,7 +23,7 @@ temp_dir = current_dir / "temp"
 temp_dir.mkdir(exist_ok=True)
 
 
-@router.message(Command("plank_instructions"))
+@router.message(Command("plank"))
 async def send_plank_instructions(message: Message, state: FSMContext):
     if not is_test_day_allowed("plank"):
         await message.answer(

@@ -48,6 +48,18 @@ async def main():
         BotCommand(command="safety", description="Начать анкету безопасности и поддержки"),
         BotCommand(command="subjective_health", description="Начать анкету субъективного здоровья"),
         BotCommand(command="supplements", description="Начать анкету добавок"),
+        BotCommand(command="balance", description="Начать анкету добавок"),
+        BotCommand(command="eye", description="Начать анкету добавок"),
+        BotCommand(command="face", description="Начать анкету добавок"),
+        BotCommand(command="feet", description="Начать анкету добавок"),
+        BotCommand(command="full_body", description="Начать анкету добавок"),
+        BotCommand(command="hands", description="Начать анкету добавок"),
+        BotCommand(command="neck", description="Начать анкету добавок"),
+        BotCommand(command="picking_up", description="Начать анкету добавок"),
+        BotCommand(command="plank", description="Начать анкету добавок"),
+        BotCommand(command="running", description="Начать анкету добавок"),
+        BotCommand(command="squats", description="Начать анкету добавок"),
+        BotCommand(command="walking", description="Начать анкету добавок"),
     ]
     await bot.set_my_commands(commands)
 

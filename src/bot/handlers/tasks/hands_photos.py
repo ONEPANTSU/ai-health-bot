@@ -23,7 +23,7 @@ temp_dir = current_dir / "temp"
 temp_dir.mkdir(exist_ok=True)
 
 
-@router.message(Command("hands_photo_instructions"))
+@router.message(Command("hands"))
 async def send_hands_instructions(message: Message, state: FSMContext):
     if not is_test_day_allowed("hands_photo"):
         await message.answer(

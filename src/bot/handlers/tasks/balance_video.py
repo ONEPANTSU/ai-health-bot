@@ -1,5 +1,4 @@
 from datetime import datetime
-from aiogram.types import BufferedInputFile
 from pathlib import Path
 from aiogram import Router, F
 from aiogram.types import Message, ContentType
@@ -22,7 +21,7 @@ temp_dir = current_dir / "temp"
 temp_dir.mkdir(exist_ok=True)
 
 
-@router.message(Command("balance_test_instructions"))
+@router.message(Command("balance"))
 async def send_balance_instructions(message: Message, state: FSMContext):
     if not is_test_day_allowed("balance"):
         await message.answer(
@@ -31,7 +30,7 @@ async def send_balance_instructions(message: Message, state: FSMContext):
         return
     await state.set_state(BalanceTestStates.waiting_balance_video)
 
-    s3_key = "tasks-examples/balance/balance.mp4"
+    s3_key = "tasks-examples/balance.mp4"
     try:
         video = await s3_client.get_video_as_buffered_file(s3_key)
 

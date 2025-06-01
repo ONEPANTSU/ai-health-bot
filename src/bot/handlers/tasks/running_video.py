@@ -19,7 +19,7 @@ example_video_path = current_dir / "examples" / "running_video.MOV"
 
 
 # Хэндлер для отправки примера видео бега
-@router.message(Command("running_instructions"))
+@router.message(Command("running"))
 async def send_running_example(message: Message, state: FSMContext):
     if not is_test_day_allowed("running"):
         await message.answer(

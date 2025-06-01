@@ -21,7 +21,7 @@ temp_dir = current_dir / "temp"
 temp_dir.mkdir(exist_ok=True)
 
 
-@router.message(Command("walking_instructions"))
+@router.message(Command("walking"))
 async def send_walking_instructions(message: Message, state: FSMContext):
     if not is_test_day_allowed("walking"):
         await message.answer(
