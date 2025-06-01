@@ -9,6 +9,7 @@ from aiogram.types import ReplyKeyboardRemove
 from src.bot.is_test_allowed import is_test_day_allowed
 from src.bot.keyboards import get_yes_no_kb
 from src.bot.states import SupplementsQuestionnaire
+from src.bot.utils import send_llm_advice
 from src.db.connection import get_db_connection
 from src.db.patient_repository import save_patient_record
 
@@ -101,4 +102,5 @@ async def finish_supplements_questionnaire(message: Message, state: FSMContext):
         summary,
         reply_markup=ReplyKeyboardRemove(),
     )
+    await send_llm_advice(message, data, [])
     await state.clear()

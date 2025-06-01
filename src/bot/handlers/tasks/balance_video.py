@@ -7,6 +7,7 @@ from aiogram.fsm.context import FSMContext
 
 from src.bot.is_test_allowed import is_task_day_allowed
 from src.bot.states import BalanceTestStates
+from src.bot.utils import send_llm_advice
 from src.db.connection import get_db_connection
 from src.db.patient_repository import save_patient_record
 from src.media.s3_client import S3Client
@@ -70,7 +71,7 @@ async def handle_balance_video(message: Message, state: FSMContext):
         await message.bot.download_file(file.file_path, destination=str(video_path))
 
         # Сохраняем в S3
-        s3_url = await s3_client.upload_file(
+        s3_key = await s3_client.upload_file(
             file_path=str(video_path),
             username=username,
             filename="balance.mp4",
@@ -87,7 +88,7 @@ async def handle_balance_video(message: Message, state: FSMContext):
                 answers, ensure_ascii=False
             ),  # Преобразуем в JSON строку
             gpt_response="",
-            s3_links=[s3_url],
+            s3_links=[s3_key],
             summary="Баланс",
             is_daily=False,
         )
@@ -98,6 +99,7 @@ async def handle_balance_video(message: Message, state: FSMContext):
             "- Длительность удержания на каждой ноге\n"
             "- Разницу между показателями"
         )
+        await send_llm_advice(message, {}, [s3_key])
         await state.clear()
 
     except Exception as e:

@@ -9,6 +9,7 @@ from aiogram.types import ReplyKeyboardRemove
 
 from src.bot.is_test_allowed import is_test_day_allowed
 from src.bot.states import NutritionQuestionnaire
+from src.bot.utils import send_llm_advice
 from src.db.connection import get_db_connection
 from src.db.patient_repository import save_patient_record
 
@@ -147,4 +148,5 @@ async def process_water(message: Message, state: FSMContext):
         summary,
         reply_markup=ReplyKeyboardRemove(),
     )
+    await send_llm_advice(message, data, [])
     await state.clear()
