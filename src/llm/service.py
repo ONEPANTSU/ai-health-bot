@@ -1,4 +1,3 @@
-
 import html
 import json
 import re
@@ -7,6 +6,7 @@ from langchain_core.messages import HumanMessage
 
 from src.db.connection import get_db_connection
 from src.db.patient_repository import get_all_records_by_user
+from src.db.patient_repository import save_llm_response_separately
 from src import config
 
 llm = ChatOpenAI(
@@ -21,7 +21,9 @@ def convert_json_to_readable_text(record: dict) -> str:
     if not q_type or q_type not in config.QUESTION_TEXT_MAP:
         return f"[⚠️ Неизвестный тип анкеты: {q_type}]"
 
-    answers = record["answers"]
+    answers = record.get("answers")
+    if not answers:
+        answers = record
     if isinstance(answers, str):
         answers = json.loads(answers, ensure_ascii=False)
 
@@ -70,8 +72,10 @@ def markdown_to_html(text: str) -> str:
     return text
 
 async def dispatch_to_llm(username: str, telegram_id: int, current_record: dict, media_urls: list[str]) -> str:
-    q_type = current_record.get("questionnaire_type")
-    prompt_template = config.QUESTION_TYPE_PROMPTS.get(q_type, "Проанализируй состояние пациента.")
+    p_type = current_record.get("prompt_type")
+    if isinstance(p_type, list):
+        p_type = p_type[0]
+    prompt_template = config.QUESTION_TYPE_PROMPTS.get(p_type, "Проанализируй состояние пациента.")
 
     readable_text = convert_json_to_readable_text(current_record)
     history_blocks = await build_history_blocks(telegram_id)
@@ -83,7 +87,12 @@ async def dispatch_to_llm(username: str, telegram_id: int, current_record: dict,
     ).encode("utf-8").decode("utf-8")
 
     resp = await analyze_patient(prompt=prompt, media_urls=media_urls, history_blocks=history_blocks)
-    return markdown_to_html(resp) if resp else "Не удалось получить ответ от AI."
+
+    if resp:
+        conn = await get_db_connection()
+        await save_llm_response_separately(conn, telegram_id, prompt, resp)
+        return markdown_to_html(resp)
+    return "Не удалось получить ответ от AI."
 
 async def dispatch_weekly_to_llm(username: str, telegram_id: int, week_number: int, media_urls: list[str]) -> str:
     prompt_template = config.WEEKLY_PROMPTS.get(str(week_number), "Проанализируй прогресс участника за неделю.")
@@ -97,4 +106,9 @@ async def dispatch_weekly_to_llm(username: str, telegram_id: int, week_number: i
     ).encode("utf-8").decode("utf-8")
 
     resp = await analyze_patient(prompt=prompt, media_urls=media_urls, history_blocks=[])
-    return markdown_to_html(resp) if resp else "Не удалось получить недельный ответ от AI."
+
+    if resp:
+        conn = await get_db_connection()
+        await save_llm_response_separately(conn, telegram_id, prompt, resp)
+        return markdown_to_html(resp)
+    return "Не удалось получить недельный ответ от AI."

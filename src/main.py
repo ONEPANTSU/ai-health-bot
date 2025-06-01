@@ -33,7 +33,12 @@ from src.bot.handlers.tasks.plank_video import router as plank_video_router
 from src.bot.handlers.timezone import router as timezone_router
 from src.bot.handlers.testing import router as testing_router
 from src.llm.scheduler import setup_llm_scheduler
+import logging
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
 
 async def main():
     bot = Bot(token=config.BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))

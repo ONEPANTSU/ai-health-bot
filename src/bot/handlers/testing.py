@@ -87,13 +87,6 @@ async def manual_set_testing_date(message: Message):
     await message.answer(f"✅ Дата тестирования установлена вручную: {start_date.strftime('%d.%m.%Y')}")
 
 
-@router.message(Command("reset_testing_date"), IsAdmin())
-async def reset_testing_date(message: Message):
-    """Сброс даты тестирования (только для админа)"""
-    await set_global_testing_start_date(None)
-    await message.answer("✅ Дата тестирования сброшена для всех пользователей")
-
-
 @router.message(Command("check_testing_date"))
 async def check_testing_date(message: Message):
     """Проверка текущей даты тестирования"""

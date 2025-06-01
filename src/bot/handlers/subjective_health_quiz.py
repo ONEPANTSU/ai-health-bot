@@ -40,7 +40,7 @@ async def save_health_data(telegram_id: int, data: dict):
 @router.message(Command("subjective_health"))
 async def start_health_questionnaire(message: Message, state: FSMContext):
     await state.clear()
-    if not is_test_day_allowed("health"):
+    if not await is_test_day_allowed("health"):
         await message.answer(
             "⏳ Анкета субъективного состояния здоровья не предназначена для заполнения сегодня"
         )
@@ -139,6 +139,7 @@ async def finish_health_questionnaire(message: Message, state: FSMContext):
     data = await state.get_data()
     q_type = "subjective_health"
     data["questionnaire_type"] = q_type
+    data["prompt_type"] = "subjective_health"
 
     await save_health_data(message.from_user.id, data)
 

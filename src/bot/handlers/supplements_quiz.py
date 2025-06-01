@@ -18,6 +18,7 @@ async def save_supplements_data(telegram_id: int, data: dict):
     conn = await get_db_connection()
     answers = {
         "questionnaire_type": "supplements",
+        "prompt_type": "subjective_health",
         "taking_supplements": data["taking_supplements"],
         "supplements_details": data.get("supplements_details", ""),
     }
@@ -36,7 +37,7 @@ async def save_supplements_data(telegram_id: int, data: dict):
 @router.message(Command("supplements"))
 async def start_supplements_questionnaire(message: Message, state: FSMContext):
     await state.clear()
-    if not is_test_day_allowed("supplements"):
+    if not await is_test_day_allowed("supplements"):
         await message.answer(
             "⏳ Анкета приема БАДов/витаминов не предназначена для заполнения сегодня"
         )

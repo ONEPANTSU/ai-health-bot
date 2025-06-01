@@ -319,6 +319,7 @@ async def process_after_work_feeling(message: Message, state: FSMContext):
     data = await state.get_data()
     q_type = "daily"
     data["questionnaire_type"] = q_type
+    data["prompt_type"] = "subjective_health",
 
     # Сохранение в БД
     conn = await get_db_connection()

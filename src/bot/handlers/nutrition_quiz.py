@@ -18,6 +18,7 @@ async def save_nutrition_data(telegram_id: int, data: dict):
     conn = await get_db_connection()
     answers = {
         "questionnaire_type": "nutrition",
+        "prompt_type": "subjective_health",
         "breakfast": data["breakfast"],
         "lunch": data["lunch"],
         "dinner": data["dinner"],
@@ -39,7 +40,7 @@ async def save_nutrition_data(telegram_id: int, data: dict):
 @router.message(Command("nutrition"))
 async def start_nutrition_questionnaire(message: Message, state: FSMContext):
     await state.clear()
-    if not is_test_day_allowed("nutrition"):
+    if not await is_test_day_allowed("nutrition"):
         await message.answer(
             "⏳ Анкета питания не предназначена для заполнения сегодня"
         )

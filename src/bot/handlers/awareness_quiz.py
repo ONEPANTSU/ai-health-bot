@@ -25,6 +25,7 @@ async def finish_questionnaire(message: Message, state: FSMContext, data: dict):
 
     answers = {
         "questionnaire_type": q_type,
+        "prompt_type": "subjective_health",
         "has_practice": data.get("has_practice", "Нет"),
         "practice_frequency": data.get("practice_frequency", ""),
         "focus_object": data.get("focus_object", ""),
@@ -62,7 +63,7 @@ async def finish_questionnaire(message: Message, state: FSMContext, data: dict):
 @router.message(Command("mindfulness"))
 async def start_mindfulness_questionnaire(message: Message, state: FSMContext):
     await state.clear()
-    if not is_test_day_allowed("mindfulness"):
+    if not await is_test_day_allowed("mindfulness"):
         await message.answer("⏳ Анкета осознанности сегодня не доступна.")
         return
 

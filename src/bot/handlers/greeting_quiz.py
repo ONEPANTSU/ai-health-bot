@@ -19,6 +19,7 @@ async def save_greeting_data(telegram_id: int, data: dict):
     conn = await get_db_connection()
     answers = {
         "questionnaire_type": "greeting",
+        "prompt_type": "subjective_health",
         "full_name": data.get("full_name"),
         "phone": data.get("phone"),
         "telegram_nick": data.get("telegram_nick"),
@@ -61,7 +62,7 @@ async def handle_start(msg: Message, bot: Bot, state: FSMContext):
 
 @router.message(Command("greeting"))
 async def start_greeting(message: Message, state: FSMContext):
-    if not is_test_day_allowed("greeting"):
+    if not await is_test_day_allowed("greeting"):
         await message.answer("⏳ Анкета приветствия сегодня не доступна.")
         return
     await message.answer("АНКЕТА ПРИВЕТСТВИЯ\n\nФИО*:")

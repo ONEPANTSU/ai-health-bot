@@ -5,7 +5,7 @@ from aiogram.types import Message, ContentType
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 
-from src.bot.is_test_allowed import is_test_day_allowed
+from src.bot.is_test_allowed import is_task_day_allowed
 from src.bot.states import BalanceTestStates
 from src.media.s3_client import S3Client
 
@@ -23,7 +23,7 @@ temp_dir.mkdir(exist_ok=True)
 
 @router.message(Command("balance"))
 async def send_balance_instructions(message: Message, state: FSMContext):
-    if not is_test_day_allowed("balance"):
+    if not await is_task_day_allowed("balance"):
         await message.answer(
             '⏳ Задание "Тест на баланс" не предназначено для прохождения сегодня'
         )
@@ -32,7 +32,7 @@ async def send_balance_instructions(message: Message, state: FSMContext):
 
     s3_key = "tasks-examples/balance.mp4"
     try:
-        video = await s3_client.get_video_as_buffered_file(s3_key)
+        video = await s3_client.get_media_as_buffered_file(s3_key)
 
         await message.answer_video(
             video=video,
