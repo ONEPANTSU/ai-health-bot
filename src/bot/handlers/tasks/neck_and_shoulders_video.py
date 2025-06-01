@@ -6,7 +6,7 @@ from aiogram import Router, F
 from aiogram.types import Message, ContentType
 from aiogram.filters import Command
 
-from src.bot.is_test_allowed import is_test_day_allowed
+from src.bot.is_test_allowed import is_task_day_allowed
 from src.bot.states import NeckVideoStates
 from src.media.s3_client import S3Client
 
@@ -21,9 +21,9 @@ temp_dir = current_dir / "temp"
 temp_dir.mkdir(exist_ok=True)
 
 
-@router.message(Command("neck_exercise_instructions"))
+@router.message(Command("neck"))
 async def send_neck_instructions(message: Message, state: FSMContext):
-    if not is_test_day_allowed("neck_exercise"):
+    if not await is_task_day_allowed("neck_exercise"):
         await message.answer(
             '⏳ Задание "Повороты головы и круговые движения шеи" не предназначено для прохождения сегодня'
         )

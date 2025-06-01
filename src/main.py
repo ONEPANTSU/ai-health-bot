@@ -33,7 +33,12 @@ from src.bot.handlers.tasks.plank_video import router as plank_video_router
 from src.bot.handlers.timezone import router as timezone_router
 from src.bot.handlers.testing import router as testing_router
 from src.llm.scheduler import setup_llm_scheduler
+import logging
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
 
 async def main():
     bot = Bot(token=config.BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
@@ -48,6 +53,18 @@ async def main():
         BotCommand(command="safety", description="Начать анкету безопасности и поддержки"),
         BotCommand(command="subjective_health", description="Начать анкету субъективного здоровья"),
         BotCommand(command="supplements", description="Начать анкету добавок"),
+        BotCommand(command="balance", description="Начать анкету добавок"),
+        BotCommand(command="eye", description="Начать анкету добавок"),
+        BotCommand(command="face", description="Начать анкету добавок"),
+        BotCommand(command="feet", description="Начать анкету добавок"),
+        BotCommand(command="full_body", description="Начать анкету добавок"),
+        BotCommand(command="hands", description="Начать анкету добавок"),
+        BotCommand(command="neck", description="Начать анкету добавок"),
+        BotCommand(command="picking_up", description="Начать анкету добавок"),
+        BotCommand(command="plank", description="Начать анкету добавок"),
+        BotCommand(command="running", description="Начать анкету добавок"),
+        BotCommand(command="squats", description="Начать анкету добавок"),
+        BotCommand(command="walking", description="Начать анкету добавок"),
     ]
     await bot.set_my_commands(commands)
 

@@ -7,7 +7,7 @@ from aiogram import Router, F
 from aiogram.types import Message, ContentType
 from aiogram.filters import Command
 
-from src.bot.is_test_allowed import is_test_day_allowed
+from src.bot.is_test_allowed import is_task_day_allowed
 from src.bot.states import FullbodyPhotoStates
 from src.media.s3_client import S3Client
 
@@ -26,9 +26,9 @@ temp_dir = current_dir / "temp"
 temp_dir.mkdir(exist_ok=True)
 
 
-@router.message(Command("fullbody_photo_instructions"))
+@router.message(Command("full_body"))
 async def send_fullbody_instructions(message: Message, state: FSMContext):
-    if not is_test_day_allowed("fullbody_photo"):
+    if not await is_task_day_allowed("fullbody_photo"):
         await message.answer(
             '⏳ Задание "Фото в полный рост" не предназначено для прохождения сегодня'
         )

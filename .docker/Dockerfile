@@ -7,7 +7,6 @@ ADD https://astral.sh/uv/install.sh /uv-installer.sh
 RUN sh /uv-installer.sh && rm /uv-installer.sh
 ENV PATH="/root/.local/bin/:$PATH"
 
-COPY *.json .
 COPY alembic.ini alembic.ini
 COPY pyproject.toml pyproject.toml
 COPY uv.lock uv.lock
@@ -16,6 +15,7 @@ RUN uv sync --frozen
 
 COPY .env .env
 COPY src src
+COPY *.json .
 
 ENTRYPOINT ["uv", "run"]
 CMD ["-m", "src.main"]

@@ -1,3 +1,4 @@
+from datetime import datetime
 import json
 
 import asyncpg
@@ -56,44 +57,6 @@ async def get_recent_history(
     return history_blocks
 
 
-async def get_all_records_by_user(telegram_id: int, conn: asyncpg.Connection, limit: int = 100) -> list[dict]:
-    """
-    Возвращает все анкеты пользователя по telegram_id, отсортированные по убыванию даты.
-    Гарантирует, что answers — это dict.
-    """
-    rows = await conn.fetch(
-        """
-        SELECT ph.created_at, ph.answers, ph.gpt_response
-        FROM patient_history ph
-        JOIN patients p ON ph.patient_id = p.id
-        WHERE p.telegram_id = $1
-        ORDER BY ph.created_at DESC
-        LIMIT $2
-        """,
-        telegram_id,
-        limit,
-    )
-
-    result = []
-    for row in rows:
-        raw_answers = row["answers"]
-        if isinstance(raw_answers, str):
-            try:
-                answers = json.loads(raw_answers)
-            except json.JSONDecodeError:
-                answers = {}
-        else:
-            answers = raw_answers  # уже dict
-
-        result.append({
-            "created_at": row["created_at"],
-            "answers": answers,
-            "gpt_response": row["gpt_response"],
-            "questionnaire_type": answers.get("questionnaire_type", "unknown")
-        })
-
-    return result
-
 async def save_patient_record(
     conn: asyncpg.Connection,
     telegram_id: int,
@@ -111,29 +74,16 @@ async def save_patient_record(
             raise ValueError("questionnaire_type не указан в answers")
 
         async with conn.transaction():
-            if is_daily:
-                # Удаляем только анкету, если она уже была заполнена сегодня
-                await conn.execute(
-                    """
-                    DELETE FROM patient_history
-                    WHERE patient_id = (SELECT id FROM patients WHERE telegram_id = $1)
-                    AND DATE(created_at) = CURRENT_DATE
-                    AND answers->>'questionnaire_type' = $2
-                    """,
-                    telegram_id,
-                    questionnaire_type,
-                )
-            else:
-                # Удаляем все предыдущие записи с этим типом анкеты
-                await conn.execute(
-                    """
-                    DELETE FROM patient_history
-                    WHERE patient_id = (SELECT id FROM patients WHERE telegram_id = $1)
-                    AND answers->>'questionnaire_type' = $2
-                    """,
-                    telegram_id,
-                    questionnaire_type,
-                )
+            await conn.execute(
+                """
+                DELETE FROM patient_history
+                WHERE patient_id = (SELECT id FROM patients WHERE telegram_id = $1)
+                AND DATE(created_at) = CURRENT_DATE
+                AND answers->>'questionnaire_type' = $2
+                """,
+                telegram_id,
+                questionnaire_type,
+            )
 
             await conn.execute(
                 """
@@ -163,7 +113,75 @@ async def get_all_patients(conn) -> list[dict]:
         """
         SELECT telegram_id, username, full_name, timezone, testing_start_date
         FROM patients
+
         WHERE is_active = true
         """
     )
     return [dict(row) for row in rows]
+
+async def get_all_records_by_user(telegram_id: int, conn, date_from: datetime | None = None, date_to: datetime | None = None) -> list[dict]:
+    """
+    Возвращает все записи пользователя за указанный день (или диапазон).
+    """
+    if not date_from or not date_to:
+        rows = await conn.fetch(
+            """
+            SELECT answers, s3_files
+            FROM patient_history ph
+            JOIN patients p ON p.id = ph.patient_id
+            WHERE p.telegram_id = $1
+            ORDER BY ph.created_at ASC
+            """,
+            telegram_id,
+        )
+    else:
+        rows = await conn.fetch(
+            """
+            SELECT answers, s3_files
+            FROM patient_history ph
+            JOIN patients p ON p.id = ph.patient_id
+            WHERE p.telegram_id = $1
+            AND ph.created_at >= $2 AND ph.created_at < $3
+            ORDER BY ph.created_at ASC
+            """,
+            telegram_id,
+            date_from,
+            date_to,
+        )
+    result = []
+    for row in rows:
+        record = dict(row)
+        record["answers"] = json.loads(record["answers"]) if record.get("answers") else {}
+        result.append(record)
+    return result
+
+
+async def save_llm_response(conn, telegram_id: int, response_text: str, summary: str = None):
+    """
+    Сохраняет ответ от LLM в patient_history в виде новой записи.
+    """
+    await conn.execute(
+        """
+        INSERT INTO patient_history (patient_id, answers, gpt_response, summary, created_at)
+        SELECT id, '{}'::jsonb, $2, $3, now()
+        FROM patients
+        WHERE telegram_id = $1
+        """,
+        telegram_id,
+        response_text,
+        summary or "",
+    )
+
+async def save_llm_response_separately(conn, telegram_id: int, prompt: str, response: str):
+    """
+    Сохраняет промпт и ответ GPT в отдельную таблицу llm_responses.
+    """
+    await conn.execute(
+        """
+        INSERT INTO llm_responses (patient_id, prompt, gpt_response)
+        SELECT id, $2, $3 FROM patients WHERE telegram_id = $1
+        """,
+        telegram_id,
+        prompt,
+        response,
+    )

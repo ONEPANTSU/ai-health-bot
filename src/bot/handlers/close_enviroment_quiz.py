@@ -21,6 +21,7 @@ async def save_close_circle_data(telegram_id: int, data: dict):
     conn = await get_db_connection()
     answers = {
         "questionnaire_type": "close_circle",
+        "prompt_type": "subjective_health",
         "relationships": data.get("relationships", ""),
         "relationship_quality": data.get("relationship_quality", 0),
         "communication_frequency": data.get("communication_frequency", ""),
@@ -41,7 +42,7 @@ async def save_close_circle_data(telegram_id: int, data: dict):
 @router.message(Command("close_environment"))
 async def start_close_circle(message: Message, state: FSMContext):
     await state.clear()
-    if not is_test_day_allowed("close_environment"):
+    if not await is_test_day_allowed("close_environment"):
         await message.answer(
             "⏳ Анкета о близком окружении сегодня не доступна."
         )

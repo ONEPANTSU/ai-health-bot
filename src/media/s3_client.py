@@ -70,7 +70,7 @@ class S3Client:
                     result.append(obj["Key"])
             return result
 
-    async def get_video_as_buffered_file(self, s3_key: str) -> BufferedInputFile:
+    async def get_media_as_buffered_file(self, s3_key: str) -> BufferedInputFile:
         async with self.session.create_client(
             "s3",
             endpoint_url=self.endpoint_url,

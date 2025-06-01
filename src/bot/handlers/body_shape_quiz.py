@@ -18,6 +18,7 @@ async def save_body_data(telegram_id: int, data: dict):
     conn = await get_db_connection()
     answers = {
         "questionnaire_type": "body_measurements",
+        "prompt_type": "subjective_health",
         "waist": data["waist"],
         "hips": data["hips"],
         "chest": data["chest"],
@@ -37,7 +38,7 @@ async def save_body_data(telegram_id: int, data: dict):
 @router.message(Command("body_measurements"))
 async def start_body_questionnaire(message: Message, state: FSMContext):
     await state.clear()
-    if not is_test_day_allowed("body"):
+    if not await is_test_day_allowed("body"):
         await message.answer("⏳ Анкета телосложения сегодня не доступна.")
         return
     await message.answer("АНКЕТА ТЕЛОСЛОЖЕНИЯ\n\nОкружность талии (в см):")

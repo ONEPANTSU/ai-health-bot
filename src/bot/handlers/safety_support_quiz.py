@@ -18,6 +18,7 @@ async def save_safety_data(telegram_id: int, data: dict):
     conn = await get_db_connection()
     answers = {
         "questionnaire_type": "safety_support",
+        "prompt_type": "subjective_health",
         "has_support": data.get("has_support", ""),
         "support_count": data.get("support_count", ""),
         "feels_safe": data.get("feels_safe", ""),
@@ -38,7 +39,7 @@ async def save_safety_data(telegram_id: int, data: dict):
 @router.message(Command("safety"))
 async def start_safety_questionnaire(message: Message, state: FSMContext):
     await state.clear()
-    if not is_test_day_allowed("safety"):
+    if not await is_test_day_allowed("safety"):
         await message.answer(
             "⏳ Анкета чувства безопасности и поддержки не предназначена для заполнения сегодня"
         )

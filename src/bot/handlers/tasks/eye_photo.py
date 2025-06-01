@@ -6,7 +6,7 @@ from aiogram.types import Message, ContentType
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 
-from src.bot.is_test_allowed import is_test_day_allowed
+from src.bot.is_test_allowed import is_task_day_allowed
 from src.bot.states import EyePhotoStates
 from src.media.s3_client import S3Client
 
@@ -20,9 +20,9 @@ temp_dir = current_dir / "temp"
 temp_dir.mkdir(exist_ok=True)
 
 
-@router.message(Command("eye_photo_instructions"))
+@router.message(Command("eye"))
 async def send_eye_instructions(message: Message, state: FSMContext):
-    if not is_test_day_allowed("eye_photo"):
+    if not await is_task_day_allowed("eye_photo"):
         await message.answer(
             '⏳ Задание "Макрофото глаза" не предназначено для прохождения сегодня'
         )

@@ -6,7 +6,7 @@ from aiogram.types import Message, ContentType
 from aiogram.filters import Command
 from datetime import datetime
 
-from src.bot.is_test_allowed import is_test_day_allowed
+from src.bot.is_test_allowed import is_task_day_allowed
 from src.bot.states import RunningVideoStates
 from src.media.s3_client import S3Client
 
@@ -19,9 +19,9 @@ example_video_path = current_dir / "examples" / "running_video.MOV"
 
 
 # Хэндлер для отправки примера видео бега
-@router.message(Command("running_instructions"))
+@router.message(Command("running"))
 async def send_running_example(message: Message, state: FSMContext):
-    if not is_test_day_allowed("running"):
+    if not await is_task_day_allowed("running"):
         await message.answer(
             '⏳ Задание "Бег на дистанции 10-15 метров" не предназначено для прохождения сегодня'
         )
