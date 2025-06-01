@@ -4,7 +4,7 @@ import datetime
 from typing import List
 
 from video_processor import extract_frames_from_video
-from s3_client import S3Client
+from src.media.s3_client import S3Client
 
 s3 = S3Client()
 

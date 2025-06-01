@@ -8,7 +8,7 @@ from aiogram.filters import Command
 
 from src.bot.is_test_allowed import is_test_day_allowed
 from src.bot.states import SquatsVideoStates
-from src.s3_client import S3Client
+from src.media.s3_client import S3Client
 
 router = Router()
 s3_client = S3Client()

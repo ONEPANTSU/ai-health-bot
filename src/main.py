@@ -32,6 +32,7 @@ from src.bot.handlers.tasks.eye_photo import router as eye_photo_router
 from src.bot.handlers.tasks.plank_video import router as plank_video_router
 from src.bot.handlers.timezone import router as timezone_router
 from src.bot.handlers.testing import router as testing_router
+from src.llm.scheduler import setup_llm_scheduler
 
 
 async def main():
@@ -52,6 +53,7 @@ async def main():
 
     dp = Dispatcher()
     setup_scheduler(bot)
+    setup_llm_scheduler(bot)
 
     dp.include_router(greeting_router)
     dp.include_router(daily_router)

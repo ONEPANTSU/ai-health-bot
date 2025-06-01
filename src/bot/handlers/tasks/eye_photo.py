@@ -8,7 +8,7 @@ from aiogram.fsm.context import FSMContext
 
 from src.bot.is_test_allowed import is_test_day_allowed
 from src.bot.states import EyePhotoStates
-from src.s3_client import S3Client
+from src.media.s3_client import S3Client
 
 router = Router()
 s3_client = S3Client()

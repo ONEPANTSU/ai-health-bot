@@ -5,7 +5,6 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
-from src.llm_analyzer import dispatch_to_llm
 from src.bot.is_test_allowed import is_test_day_allowed
 from src.bot.keyboards import get_yes_no_kb
 from src.bot.states import HealthQuestionnaire
@@ -162,17 +161,4 @@ async def finish_health_questionnaire(message: Message, state: FSMContext):
         summary += f"Локализация: {data['pain_details']}"
 
     await message.answer(summary)
-    try:
-        llm_response = await dispatch_to_llm(
-            username=message.from_user.username or message.from_user.full_name,
-            telegram_id=message.from_user.id,
-            current_record={
-                "questionnaire_type": q_type,
-                "answers": data
-            },
-            media_urls=[]
-        )
-        await message.answer(f"🤖 Рекомендации от AI:\n\n{llm_response}")
-    except Exception as e:
-        await message.answer(f"⚠️ Не удалось получить рекомендации от AI:\n{e}")
     await state.clear()

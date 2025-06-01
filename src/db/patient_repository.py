@@ -154,3 +154,16 @@ async def save_patient_record(
     except Exception as e:
         print(f"Ошибка сохранения: {e}")
         raise
+
+async def get_all_patients(conn) -> list[dict]:
+    """
+    Возвращает список всех активных пользователей.
+    """
+    rows = await conn.fetch(
+        """
+        SELECT telegram_id, username, full_name, timezone, testing_start_date
+        FROM patients
+        WHERE is_active = true
+        """
+    )
+    return [dict(row) for row in rows]

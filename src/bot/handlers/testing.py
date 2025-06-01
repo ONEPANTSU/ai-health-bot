@@ -63,6 +63,30 @@ async def start_testing(message: Message):
     )
 
 
+
+@router.message(Command("set_testing_date"), IsAdmin())
+async def manual_set_testing_date(message: Message):
+    """Установка даты тестирования вручную. Пример: /set_testing_date 2025-06-01"""
+    parts = message.text.strip().split()
+
+    if len(parts) != 2:
+        await message.answer("❗ Укажи дату в формате yyyy-mm-dd, например: /set_testing_date 2025-06-01")
+        return
+
+    date_str = parts[1]
+
+    try:
+        start_date = datetime.strptime(date_str, "%Y-%m-%d")
+    except ValueError:
+        await message.answer("❗ Неверный формат даты. Используй yyyy-mm-dd, например: /set_testing_date 2025-06-01")
+        return
+
+    await set_global_testing_start_date(start_date)
+    await update_all_users_testing_date(start_date)
+
+    await message.answer(f"✅ Дата тестирования установлена вручную: {start_date.strftime('%d.%m.%Y')}")
+
+
 @router.message(Command("reset_testing_date"), IsAdmin())
 async def reset_testing_date(message: Message):
     """Сброс даты тестирования (только для админа)"""

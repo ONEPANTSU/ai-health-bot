@@ -5,7 +5,6 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
-from src.llm_analyzer import dispatch_to_llm
 from src.bot.is_test_allowed import is_test_day_allowed
 from src.bot.keyboards import get_gender_keyboard
 from src.bot.scheduler import get_user_timezone
@@ -139,7 +138,7 @@ async def process_weight(message: Message, state: FSMContext):
 
     data = await state.get_data()
     q_type = "greeting"
-    data["questionnaire_type"] = "greeting"
+    data["questionnaire_type"] = q_type
 
     await save_greeting_data(message.from_user.id, data)
 
@@ -153,17 +152,4 @@ async def process_weight(message: Message, state: FSMContext):
         f"Рост: {data['height']} см\n"
         f"Вес: {message.text} кг"
     )
-    try:
-        llm_response = await dispatch_to_llm(
-            username=message.from_user.username or message.from_user.full_name,
-            telegram_id=message.from_user.id,
-            current_record={
-                "questionnaire_type": q_type,
-                "answers": data
-            },
-            media_urls=[]
-        )
-        await message.answer(f"🤖 Рекомендации от AI:\n\n{llm_response}")
-    except Exception as e:
-        await message.answer(f"⚠️ Не удалось получить рекомендации от AI:\n{e}")
     await state.clear()

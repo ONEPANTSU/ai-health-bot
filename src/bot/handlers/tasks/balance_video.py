@@ -8,7 +8,7 @@ from aiogram.fsm.context import FSMContext
 
 from src.bot.is_test_allowed import is_test_day_allowed
 from src.bot.states import BalanceTestStates
-from src.s3_client import S3Client
+from src.media.s3_client import S3Client
 
 router = Router()
 s3_client = S3Client()
@@ -31,25 +31,9 @@ async def send_balance_instructions(message: Message, state: FSMContext):
         return
     await state.set_state(BalanceTestStates.waiting_balance_video)
 
-    if not example_video_path.exists():
-        await message.answer(
-            "<b>Баланс</b>\n"
-            "Задание: «Тест на баланс на одной ноге».\n\n"
-            "<b>Как выполнять:</b>\n"
-            "1. Встаньте прямо, ноги вместе, руки вдоль тела\n"
-            "2. Поднимите одну ногу\n"
-            "3. Зафиксируйте время удержания\n"
-            "4. Повторите на другой ноге\n\n"
-            "<b>Что оценивается:</b>\n"
-            "— Длительность удержания равновесия\n"
-            "— Разница между показателями ног",
-            parse_mode="HTML",
-        )
-        return
-
-    # Отправляем видео с инструкцией
-    with open(example_video_path, "rb") as f:
-        video = BufferedInputFile(f.read(), filename=example_video_path.name)
+    s3_key = "tasks-examples/balance/balance.mp4"
+    try:
+        video = await s3_client.get_video_as_buffered_file(s3_key)
 
         await message.answer_video(
             video=video,
@@ -67,6 +51,8 @@ async def send_balance_instructions(message: Message, state: FSMContext):
             ),
             parse_mode="HTML",
         )
+    except Exception as e:
+        await message.answer(f"⚠️ Не удалось загрузить видео с инструкцией: {e}")
 
 
 @router.message(

@@ -1,14 +1,15 @@
 from datetime import datetime
 from aiogram import Router
 
-from src.bot.handlers.testing import get_testing_start_date
+# from src.bot.handlers.testing import get_testing_start_date
 
 router = Router()
 
 
 async def is_test_day_allowed(test_name: str) -> bool:
     """Проверяет, можно ли проходить тест сегодня с учетом даты старта"""
-    start_date = await get_testing_start_date()
+    # start_date = await get_testing_start_date()
+    start_date = datetime.now()
     if not start_date:
         return False
 
@@ -30,7 +31,8 @@ async def is_test_day_allowed(test_name: str) -> bool:
 
 async def is_task_day_allowed(task_name: str) -> bool:
     """Проверяет, можно ли выполнять задание сегодня с учетом даты старта"""
-    start_date = await get_testing_start_date()
+    # start_date = await get_testing_start_date()
+    start_date = datetime.now()
     if not start_date:
         return False
 
