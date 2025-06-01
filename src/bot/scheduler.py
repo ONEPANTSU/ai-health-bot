@@ -172,9 +172,7 @@ async def send_supplements_questionnaire(bot: Bot):
                 chat_id=user["telegram_id"],
                 text="💊 Пожалуйста, заполните анкету приема БАДов/витаминов: /supplements",
                 reply_markup=ReplyKeyboardMarkup(
-                    keyboard=[
-                        [KeyboardButton(text="/supplements")]
-                    ],
+                    keyboard=[[KeyboardButton(text="/supplements")]],
                     resize_keyboard=True,
                 ),
             )

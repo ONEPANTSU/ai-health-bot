@@ -5,7 +5,7 @@ from aiogram import Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
-from aiogram.types  import ReplyKeyboardRemove
+from aiogram.types import ReplyKeyboardRemove
 
 from src.bot.is_test_allowed import is_test_day_allowed
 from src.bot.states import NutritionQuestionnaire
@@ -44,7 +44,7 @@ async def start_nutrition_questionnaire(message: Message, state: FSMContext):
     if not await is_test_day_allowed("nutrition"):
         await message.answer(
             "⏳ Анкета питания не предназначена для заполнения сегодня",
-        reply_markup=ReplyKeyboardRemove(),
+            reply_markup=ReplyKeyboardRemove(),
         )
         return
     await message.answer(
@@ -143,6 +143,8 @@ async def process_water(message: Message, state: FSMContext):
         f"Вода: {data['water']} л/день"
     )
 
-    await message.answer(summary,
-        reply_markup=ReplyKeyboardRemove(),)
+    await message.answer(
+        summary,
+        reply_markup=ReplyKeyboardRemove(),
+    )
     await state.clear()

@@ -82,7 +82,9 @@ async def handle_eye_photo(message: Message, state: FSMContext):
         await save_patient_record(
             conn=conn,
             telegram_id=user_id,
-            answers=json.dumps(answers, ensure_ascii=False),  # Преобразуем в JSON строку
+            answers=json.dumps(
+                answers, ensure_ascii=False
+            ),  # Преобразуем в JSON строку
             gpt_response="",
             s3_links=[s3_url],
             summary="Макрофото глаза",

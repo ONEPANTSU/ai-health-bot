@@ -4,7 +4,7 @@ from aiogram import Router, Bot
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
-from aiogram.types  import ReplyKeyboardRemove
+from aiogram.types import ReplyKeyboardRemove
 
 from src.bot.is_test_allowed import is_test_day_allowed
 from src.bot.keyboards import get_gender_keyboard
@@ -57,8 +57,10 @@ async def handle_start(msg: Message, bot: Bot, state: FSMContext):
         timezone=tz,
     )
 
-    await msg.answer("👋 Вы зарегистрированы!",
-        reply_markup=ReplyKeyboardRemove(),)
+    await msg.answer(
+        "👋 Вы зарегистрированы!",
+        reply_markup=ReplyKeyboardRemove(),
+    )
     await conn.close()
 
 
@@ -67,8 +69,10 @@ async def start_greeting(message: Message, state: FSMContext):
     if not await is_test_day_allowed("greeting"):
         await message.answer("⏳ Анкета приветствия сегодня не доступна.")
         return
-    await message.answer("АНКЕТА ПРИВЕТСТВИЯ\n\nФИО*:",
-        reply_markup=ReplyKeyboardRemove(),)
+    await message.answer(
+        "АНКЕТА ПРИВЕТСТВИЯ\n\nФИО*:",
+        reply_markup=ReplyKeyboardRemove(),
+    )
     await state.set_state(GreetingQuestionnaire.FULL_NAME)
 
 
@@ -79,8 +83,10 @@ async def process_full_name(message: Message, state: FSMContext):
         return
 
     await state.update_data(full_name=message.text)
-    await message.answer("Контактный номер телефона* (в формате +7...):",
-        reply_markup=ReplyKeyboardRemove(),)
+    await message.answer(
+        "Контактный номер телефона* (в формате +7...):",
+        reply_markup=ReplyKeyboardRemove(),
+    )
     await state.set_state(GreetingQuestionnaire.PHONE)
 
 
@@ -91,16 +97,20 @@ async def process_phone(message: Message, state: FSMContext):
         return
 
     await state.update_data(phone=message.text)
-    await message.answer("Ник в Telegram (без @):",
-        reply_markup=ReplyKeyboardRemove(),)
+    await message.answer(
+        "Ник в Telegram (без @):",
+        reply_markup=ReplyKeyboardRemove(),
+    )
     await state.set_state(GreetingQuestionnaire.TELEGRAM_NICK)
 
 
 @router.message(GreetingQuestionnaire.TELEGRAM_NICK)
 async def process_telegram_nick(message: Message, state: FSMContext):
     await state.update_data(telegram_nick=message.text.replace("@", ""))
-    await message.answer("Возраст (полных лет)*:",
-        reply_markup=ReplyKeyboardRemove(),)
+    await message.answer(
+        "Возраст (полных лет)*:",
+        reply_markup=ReplyKeyboardRemove(),
+    )
     await state.set_state(GreetingQuestionnaire.AGE)
 
 
@@ -122,8 +132,10 @@ async def process_gender(message: Message, state: FSMContext):
         return
 
     await state.update_data(gender=message.text)
-    await message.answer("Рост* (в см, 120-250):",
-        reply_markup=ReplyKeyboardRemove(),)
+    await message.answer(
+        "Рост* (в см, 120-250):",
+        reply_markup=ReplyKeyboardRemove(),
+    )
     await state.set_state(GreetingQuestionnaire.HEIGHT)
 
 
@@ -134,8 +146,10 @@ async def process_height(message: Message, state: FSMContext):
         return
 
     await state.update_data(height=int(message.text))
-    await message.answer("Вес* (в кг, 30-300):",
-        reply_markup=ReplyKeyboardRemove(),)
+    await message.answer(
+        "Вес* (в кг, 30-300):",
+        reply_markup=ReplyKeyboardRemove(),
+    )
     await state.set_state(GreetingQuestionnaire.WEIGHT)
 
 

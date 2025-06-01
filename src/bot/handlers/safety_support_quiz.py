@@ -5,7 +5,7 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
-from aiogram.types  import ReplyKeyboardRemove
+from aiogram.types import ReplyKeyboardRemove
 from src.bot.is_test_allowed import is_test_day_allowed
 from src.bot.keyboards import get_yes_no_kb, get_support_count_kb
 from src.bot.states import SafetyQuestionnaire
@@ -119,6 +119,8 @@ async def process_feels_safe(message: Message, state: FSMContext):
         f"3. Чувство безопасности: {data['feels_safe']}"
     )
 
-    await message.answer(report,
-        reply_markup=ReplyKeyboardRemove(),)
+    await message.answer(
+        report,
+        reply_markup=ReplyKeyboardRemove(),
+    )
     await state.clear()

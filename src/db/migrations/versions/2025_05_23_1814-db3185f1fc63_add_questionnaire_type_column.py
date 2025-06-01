@@ -23,6 +23,7 @@ def upgrade():
         "ALTER TABLE patient_history ALTER COLUMN answers TYPE JSON USING answers::json"
     )
 
+
 def downgrade():
     # Возвращаем исходный тип столбца
     op.execute(
