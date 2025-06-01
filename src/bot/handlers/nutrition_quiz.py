@@ -5,6 +5,7 @@ from aiogram import Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
+from aiogram.types import ReplyKeyboardRemove
 
 from src.bot.is_test_allowed import is_test_day_allowed
 from src.bot.states import NutritionQuestionnaire
@@ -42,13 +43,15 @@ async def start_nutrition_questionnaire(message: Message, state: FSMContext):
     await state.clear()
     if not await is_test_day_allowed("nutrition"):
         await message.answer(
-            "⏳ Анкета питания не предназначена для заполнения сегодня"
+            "⏳ Анкета питания не предназначена для заполнения сегодня",
+            reply_markup=ReplyKeyboardRemove(),
         )
         return
     await message.answer(
         "АНКЕТА ПИТАНИЯ\n\n"
         "Перечислите, что Вы ели за последние 3 дня на завтрак (например: "
-        "'1 день: овсянка, чай; 2 день: омлет, кофе; 3 день: творог с фруктами'):"
+        "'1 день: овсянка, чай; 2 день: омлет, кофе; 3 день: творог с фруктами'):",
+        reply_markup=ReplyKeyboardRemove(),
     )
     await state.set_state(NutritionQuestionnaire.BREAKFAST_3DAYS)
 
@@ -62,7 +65,8 @@ async def process_breakfast(message: Message, state: FSMContext):
     await state.update_data(breakfast=message.text)
     await message.answer(
         "Перечислите, что Вы ели за последние 3 дня на обед (например: "
-        "'1 день: курица с гречкой; 2 день: суп, салат; 3 день: рыба с овощами'):"
+        "'1 день: курица с гречкой; 2 день: суп, салат; 3 день: рыба с овощами'):",
+        reply_markup=ReplyKeyboardRemove(),
     )
     await state.set_state(NutritionQuestionnaire.LUNCH_3DAYS)
 
@@ -76,7 +80,8 @@ async def process_lunch(message: Message, state: FSMContext):
     await state.update_data(lunch=message.text)
     await message.answer(
         "Перечислите, что Вы ели за последние 3 дня на ужин (например: "
-        "'1 день: творог; 2 день: курица с овощами; 3 день: омлет'):"
+        "'1 день: творог; 2 день: курица с овощами; 3 день: омлет'):",
+        reply_markup=ReplyKeyboardRemove(),
     )
     await state.set_state(NutritionQuestionnaire.DINNER_3DAYS)
 
@@ -90,7 +95,8 @@ async def process_dinner(message: Message, state: FSMContext):
     await state.update_data(dinner=message.text)
     await message.answer(
         "Перечислите, какие у вас были перекусы за последние три дня (например: "
-        "'1 день: яблоко, йогурт; 2 день: орехи; 3 день: банан'):"
+        "'1 день: яблоко, йогурт; 2 день: орехи; 3 день: банан'):",
+        reply_markup=ReplyKeyboardRemove(),
     )
     await state.set_state(NutritionQuestionnaire.SNACKS_3DAYS)
 
@@ -103,7 +109,8 @@ async def process_snacks(message: Message, state: FSMContext):
 
     await state.update_data(snacks=message.text)
     await message.answer(
-        "Сколько воды в среднем Вы выпиваете в день? (укажите в литрах, например: 1.5):"
+        "Сколько воды в среднем Вы выпиваете в день? (укажите в литрах, например: 1.5):",
+        reply_markup=ReplyKeyboardRemove(),
     )
     await state.set_state(NutritionQuestionnaire.WATER_INTAKE)
 
@@ -136,5 +143,8 @@ async def process_water(message: Message, state: FSMContext):
         f"Вода: {data['water']} л/день"
     )
 
-    await message.answer(summary)
+    await message.answer(
+        summary,
+        reply_markup=ReplyKeyboardRemove(),
+    )
     await state.clear()

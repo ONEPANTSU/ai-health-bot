@@ -5,6 +5,7 @@ from aiogram import Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
+from aiogram.types import ReplyKeyboardRemove
 
 from src.bot.is_test_allowed import is_test_day_allowed
 from src.bot.states import BodyQuestionnaire
@@ -41,7 +42,10 @@ async def start_body_questionnaire(message: Message, state: FSMContext):
     if not await is_test_day_allowed("body"):
         await message.answer("⏳ Анкета телосложения сегодня не доступна.")
         return
-    await message.answer("АНКЕТА ТЕЛОСЛОЖЕНИЯ\n\nОкружность талии (в см):")
+    await message.answer(
+        "АНКЕТА ТЕЛОСЛОЖЕНИЯ\n\nОкружность талии (в см):",
+        reply_markup=ReplyKeyboardRemove(),
+    )
     await state.set_state(BodyQuestionnaire.WAIST)
 
 
@@ -56,7 +60,10 @@ async def process_waist(message: Message, state: FSMContext):
         return
 
     await state.update_data(waist=float(message.text))
-    await message.answer("Окружность бедер (в см):")
+    await message.answer(
+        "Окружность бедер (в см):",
+        reply_markup=ReplyKeyboardRemove(),
+    )
     await state.set_state(BodyQuestionnaire.HIPS)
 
 
@@ -71,7 +78,10 @@ async def process_hips(message: Message, state: FSMContext):
         return
 
     await state.update_data(hips=float(message.text))
-    await message.answer("Окружность груди (в см):")
+    await message.answer(
+        "Окружность груди (в см):",
+        reply_markup=ReplyKeyboardRemove(),
+    )
     await state.set_state(BodyQuestionnaire.CHEST)
 
 
@@ -95,6 +105,7 @@ async def process_chest(message: Message, state: FSMContext):
         "✅ Данные телосложения сохранены:\n\n"
         f"Талия: {data['waist']} см\n"
         f"Бёдра: {data['hips']} см\n"
-        f"Грудь: {data['chest']} см"
+        f"Грудь: {data['chest']} см",
+        reply_markup=ReplyKeyboardRemove(),
     )
     await state.clear()

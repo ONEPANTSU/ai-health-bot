@@ -99,12 +99,6 @@ def downgrade() -> None:
     )
     op.add_column(
         "patient_history",
-        sa.Column(
-            "questionnaire_type", sa.VARCHAR(), autoincrement=False, nullable=True
-        ),
-    )
-    op.add_column(
-        "patient_history",
         sa.Column("username", sa.TEXT(), autoincrement=False, nullable=True),
     )
     op.drop_constraint(None, "patient_history", type_="foreignkey")

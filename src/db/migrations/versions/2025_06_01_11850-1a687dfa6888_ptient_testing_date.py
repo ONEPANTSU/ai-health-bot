@@ -18,8 +18,12 @@ down_revision: Union[str, None] = "1a687dfa6889"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
+
 def upgrade():
-    op.add_column('patients', sa.Column('testing_start_date', sa.TIMESTAMP(), nullable=True))
+    op.add_column(
+        "patients", sa.Column("testing_start_date", sa.TIMESTAMP(), nullable=True)
+    )
+
 
 def downgrade():
-    op.drop_column('patients', 'testing_start_date')
+    op.drop_column("patients", "testing_start_date")

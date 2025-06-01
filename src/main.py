@@ -40,18 +40,30 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 
+
 async def main():
-    bot = Bot(token=config.BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+    bot = Bot(
+        token=config.BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML)
+    )
     commands = [
         BotCommand(command="start", description="Начать общение с ботом (Регистрация)"),
         BotCommand(command="greeting", description="Начать анкету приветствия"),
         BotCommand(command="daily", description="Начать ежедневную анкету"),
         BotCommand(command="mindfulness", description="Начать анкету осознанности"),
-        BotCommand(command="body_measurements", description="Начать анкету телосложения"),
-        BotCommand(command="close_environment", description="Начать анкету о близком окружении"),
+        BotCommand(
+            command="body_measurements", description="Начать анкету телосложения"
+        ),
+        BotCommand(
+            command="close_environment", description="Начать анкету о близком окружении"
+        ),
         BotCommand(command="nutrition", description="Начать анкету питания"),
-        BotCommand(command="safety", description="Начать анкету безопасности и поддержки"),
-        BotCommand(command="subjective_health", description="Начать анкету субъективного здоровья"),
+        BotCommand(
+            command="safety", description="Начать анкету безопасности и поддержки"
+        ),
+        BotCommand(
+            command="subjective_health",
+            description="Начать анкету субъективного здоровья",
+        ),
         BotCommand(command="supplements", description="Начать анкету добавок"),
         BotCommand(command="balance", description="Начать анкету добавок"),
         BotCommand(command="eye", description="Начать анкету добавок"),

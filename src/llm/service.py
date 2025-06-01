@@ -16,6 +16,7 @@ llm = ChatOpenAI(
     max_tokens=2048,
 )
 
+
 def convert_json_to_readable_text(record: dict) -> str:
     q_type = record.get("questionnaire_type")
     if not q_type or q_type not in config.QUESTION_TEXT_MAP:
@@ -34,12 +35,16 @@ def convert_json_to_readable_text(record: dict) -> str:
 
     return "\n".join(lines).encode("utf-8").decode("utf-8")
 
+
 async def build_history_blocks(telegram_id: int) -> list[str]:
     conn = await get_db_connection()
     records = await get_all_records_by_user(telegram_id, conn)
     return [convert_json_to_readable_text(r) for r in records]
 
-def build_message_chain(history_blocks: list[str], prompt: str, media_urls: list[str]) -> list[HumanMessage]:
+
+def build_message_chain(
+    history_blocks: list[str], prompt: str, media_urls: list[str]
+) -> list[HumanMessage]:
     messages = []
     for block in history_blocks:
         messages.append(HumanMessage(content=[{"type": "text", "text": block}]))
@@ -49,18 +54,24 @@ def build_message_chain(history_blocks: list[str], prompt: str, media_urls: list
         if url.startswith("http"):
             final_content.append({"type": "image_url", "image_url": {"url": url}})
         else:
-            final_content.append({"type": "text", "text": f"[⚠️ Некорректный URL изображения: {url}]"})
+            final_content.append(
+                {"type": "text", "text": f"[⚠️ Некорректный URL изображения: {url}]"}
+            )
 
     messages.append(HumanMessage(content=final_content))
     return messages
 
-async def analyze_patient(prompt: str, media_urls: list[str], history_blocks: list[str]) -> str:
+
+async def analyze_patient(
+    prompt: str, media_urls: list[str], history_blocks: list[str]
+) -> str:
     try:
         messages = build_message_chain(history_blocks, prompt, media_urls)
         response = await llm.ainvoke(messages)
         return response.content.strip()
     except Exception as e:
         return f"[❌ Ошибка анализа]: {str(e)}"
+
 
 def markdown_to_html(text: str) -> str:
     text = html.escape(text)
@@ -71,22 +82,33 @@ def markdown_to_html(text: str) -> str:
     text = re.sub(r"`([^`]+?)`", r"<code>\1</code>", text)
     return text
 
-async def dispatch_to_llm(username: str, telegram_id: int, current_record: dict, media_urls: list[str]) -> str:
+
+async def dispatch_to_llm(
+    username: str, telegram_id: int, current_record: dict, media_urls: list[str]
+) -> str:
     p_type = current_record.get("prompt_type")
     if isinstance(p_type, list):
         p_type = p_type[0]
-    prompt_template = config.QUESTION_TYPE_PROMPTS.get(p_type, "Проанализируй состояние пациента.")
+    prompt_template = config.QUESTION_TYPE_PROMPTS.get(
+        p_type, "Проанализируй состояние пациента."
+    )
 
     readable_text = convert_json_to_readable_text(current_record)
     history_blocks = await build_history_blocks(telegram_id)
 
     prompt = (
-        f"{prompt_template}\n\n"
-        f"Пациент: {username}\n\n"
-        f"Актуальные данные:\n{readable_text}"
-    ).encode("utf-8").decode("utf-8")
+        (
+            f"{prompt_template}\n\n"
+            f"Пациент: {username}\n\n"
+            f"Актуальные данные:\n{readable_text}"
+        )
+        .encode("utf-8")
+        .decode("utf-8")
+    )
 
-    resp = await analyze_patient(prompt=prompt, media_urls=media_urls, history_blocks=history_blocks)
+    resp = await analyze_patient(
+        prompt=prompt, media_urls=media_urls, history_blocks=history_blocks
+    )
 
     if resp:
         conn = await get_db_connection()
@@ -94,18 +116,29 @@ async def dispatch_to_llm(username: str, telegram_id: int, current_record: dict,
         return markdown_to_html(resp)
     return "Не удалось получить ответ от AI."
 
-async def dispatch_weekly_to_llm(username: str, telegram_id: int, week_number: int, media_urls: list[str]) -> str:
-    prompt_template = config.WEEKLY_PROMPTS.get(str(week_number), "Проанализируй прогресс участника за неделю.")
+
+async def dispatch_weekly_to_llm(
+    username: str, telegram_id: int, week_number: int, media_urls: list[str]
+) -> str:
+    prompt_template = config.WEEKLY_PROMPTS.get(
+        str(week_number), "Проанализируй прогресс участника за неделю."
+    )
     history_blocks = await build_history_blocks(telegram_id)
 
     prompt = (
-        f"{prompt_template}\n\n"
-        f"Пациент: {username}\n"
-        f"Неделя: {week_number}\n"
-        f"История:\n\n" + "\n\n".join(history_blocks)
-    ).encode("utf-8").decode("utf-8")
+        (
+            f"{prompt_template}\n\n"
+            f"Пациент: {username}\n"
+            f"Неделя: {week_number}\n"
+            f"История:\n\n" + "\n\n".join(history_blocks)
+        )
+        .encode("utf-8")
+        .decode("utf-8")
+    )
 
-    resp = await analyze_patient(prompt=prompt, media_urls=media_urls, history_blocks=[])
+    resp = await analyze_patient(
+        prompt=prompt, media_urls=media_urls, history_blocks=[]
+    )
 
     if resp:
         conn = await get_db_connection()

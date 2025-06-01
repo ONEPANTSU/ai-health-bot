@@ -4,6 +4,7 @@ from aiogram import Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
+from aiogram.types import ReplyKeyboardRemove
 
 from src.bot.is_test_allowed import is_test_day_allowed
 from src.bot.keyboards import (
@@ -43,9 +44,7 @@ async def save_close_circle_data(telegram_id: int, data: dict):
 async def start_close_circle(message: Message, state: FSMContext):
     await state.clear()
     if not await is_test_day_allowed("close_environment"):
-        await message.answer(
-            "⏳ Анкета о близком окружении сегодня не доступна."
-        )
+        await message.answer("⏳ Анкета о близком окружении сегодня не доступна.")
         return
     await message.answer(
         "МИНИ-АНКЕТА О БЛИЗКОМ ОКРУЖЕНИИ\n\n"
@@ -112,5 +111,8 @@ async def process_communication_frequency(message: Message, state: FSMContext):
         f"Частота общения: {data['communication_frequency']}"
     )
 
-    await message.answer(report)
+    await message.answer(
+        report,
+        reply_markup=ReplyKeyboardRemove(),
+    )
     await state.clear()

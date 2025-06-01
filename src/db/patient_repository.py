@@ -105,6 +105,7 @@ async def save_patient_record(
         print(f"Ошибка сохранения: {e}")
         raise
 
+
 async def get_all_patients(conn) -> list[dict]:
     """
     Возвращает список всех активных пользователей.
@@ -119,7 +120,13 @@ async def get_all_patients(conn) -> list[dict]:
     )
     return [dict(row) for row in rows]
 
-async def get_all_records_by_user(telegram_id: int, conn, date_from: datetime | None = None, date_to: datetime | None = None) -> list[dict]:
+
+async def get_all_records_by_user(
+    telegram_id: int,
+    conn,
+    date_from: datetime | None = None,
+    date_to: datetime | None = None,
+) -> list[dict]:
     """
     Возвращает все записи пользователя за указанный день (или диапазон).
     """
@@ -151,12 +158,16 @@ async def get_all_records_by_user(telegram_id: int, conn, date_from: datetime | 
     result = []
     for row in rows:
         record = dict(row)
-        record["answers"] = json.loads(record["answers"]) if record.get("answers") else {}
+        record["answers"] = (
+            json.loads(record["answers"]) if record.get("answers") else {}
+        )
         result.append(record)
     return result
 
 
-async def save_llm_response(conn, telegram_id: int, response_text: str, summary: str = None):
+async def save_llm_response(
+    conn, telegram_id: int, response_text: str, summary: str = None
+):
     """
     Сохраняет ответ от LLM в patient_history в виде новой записи.
     """
@@ -172,7 +183,10 @@ async def save_llm_response(conn, telegram_id: int, response_text: str, summary:
         summary or "",
     )
 
-async def save_llm_response_separately(conn, telegram_id: int, prompt: str, response: str):
+
+async def save_llm_response_separately(
+    conn, telegram_id: int, prompt: str, response: str
+):
     """
     Сохраняет промпт и ответ GPT в отдельную таблицу llm_responses.
     """

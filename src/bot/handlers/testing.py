@@ -15,7 +15,7 @@ async def set_global_testing_start_date(start_date: datetime):
         "INSERT INTO system_settings (setting_name, setting_value) "
         "VALUES ('testing_start_date', $1) "
         "ON CONFLICT (setting_name) DO UPDATE SET setting_value = EXCLUDED.setting_value",
-        start_date.isoformat()
+        start_date.isoformat(),
     )
 
 
@@ -31,10 +31,7 @@ async def get_global_testing_start_date():
 async def update_all_users_testing_date(start_date: datetime):
     """Обновляет дату тестирования для всех пользователей"""
     conn = await get_db_connection()
-    await conn.execute(
-        "UPDATE patients SET testing_start_date = $1",
-        start_date
-    )
+    await conn.execute("UPDATE patients SET testing_start_date = $1", start_date)
 
 
 async def is_testing_started():
@@ -63,14 +60,15 @@ async def start_testing(message: Message):
     )
 
 
-
 @router.message(Command("set_testing_date"), IsAdmin())
 async def manual_set_testing_date(message: Message):
     """Установка даты тестирования вручную. Пример: /set_testing_date 2025-06-01"""
     parts = message.text.strip().split()
 
     if len(parts) != 2:
-        await message.answer("❗ Укажи дату в формате yyyy-mm-dd, например: /set_testing_date 2025-06-01")
+        await message.answer(
+            "❗ Укажи дату в формате yyyy-mm-dd, например: /set_testing_date 2025-06-01"
+        )
         return
 
     date_str = parts[1]
@@ -78,13 +76,17 @@ async def manual_set_testing_date(message: Message):
     try:
         start_date = datetime.strptime(date_str, "%Y-%m-%d")
     except ValueError:
-        await message.answer("❗ Неверный формат даты. Используй yyyy-mm-dd, например: /set_testing_date 2025-06-01")
+        await message.answer(
+            "❗ Неверный формат даты. Используй yyyy-mm-dd, например: /set_testing_date 2025-06-01"
+        )
         return
 
     await set_global_testing_start_date(start_date)
     await update_all_users_testing_date(start_date)
 
-    await message.answer(f"✅ Дата тестирования установлена вручную: {start_date.strftime('%d.%m.%Y')}")
+    await message.answer(
+        f"✅ Дата тестирования установлена вручную: {start_date.strftime('%d.%m.%Y')}"
+    )
 
 
 @router.message(Command("check_testing_date"))
@@ -101,7 +103,9 @@ async def check_testing_date(message: Message):
 
 
 # В функции регистрации пользователя (patient_repository.py)
-async def create_patient(conn, telegram_id: int, username: str = None, full_name: str = None):
+async def create_patient(
+    conn, telegram_id: int, username: str = None, full_name: str = None
+):
     """Создает пользователя с текущей датой тестирования (если она установлена)"""
     testing_date = await get_global_testing_start_date()
 
@@ -116,5 +120,5 @@ async def create_patient(conn, telegram_id: int, username: str = None, full_name
         telegram_id,
         username,
         full_name,
-        testing_date  # Автоматически ставится текущая дата тестирования
+        testing_date,  # Автоматически ставится текущая дата тестирования
     )

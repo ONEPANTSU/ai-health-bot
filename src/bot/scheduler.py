@@ -47,7 +47,7 @@ async def send_greeting_questionnaire(bot: Bot):
         WHERE NOT EXISTS (
             SELECT 1 FROM patient_history 
             WHERE patient_history.patient_id = patients.id 
-            AND patient_history.questionnaire_type = 'greeting'
+            AND patient_history.answers->>'questionnaire_type' = 'greeting'
         )
         AND is_active = true
     """)
@@ -74,12 +74,12 @@ async def send_body_questionnaire(bot: Bot):
         WHERE EXISTS (
             SELECT 1 FROM patient_history ph
             WHERE ph.patient_id = p.id
-            AND ph.questionnaire_type = 'greeting'
+            AND ph.answers->>'questionnaire_type' = 'greeting'
         )
         AND NOT EXISTS (
             SELECT 1 FROM patient_history ph
             WHERE ph.patient_id = p.id
-            AND ph.questionnaire_type = 'body_shape'
+            AND ph.answers->>'questionnaire_type' = 'body_shape'
             AND DATE(ph.created_at) = CURRENT_DATE
         )
         AND p.is_active = true
@@ -107,7 +107,7 @@ async def send_health_questionnaire(bot: Bot):
         AND NOT EXISTS (
             SELECT 1 FROM patient_history ph
             WHERE ph.patient_id = p.id
-            AND ph.questionnaire_type = 'subjective_health'
+            AND ph.answers->>'questionnaire_type' = 'subjective_health'
             AND DATE(ph.created_at) = CURRENT_DATE
         )
     """)
@@ -134,7 +134,7 @@ async def send_nutrition_questionnaire(bot: Bot):
         AND NOT EXISTS (
             SELECT 1 FROM patient_history ph
             WHERE ph.patient_id = p.id
-            AND ph.questionnaire_type = 'nutrition'
+            AND ph.answers->>'questionnaire_type'= 'nutrition'
             AND DATE(ph.created_at) = CURRENT_DATE
         )
     """)
@@ -161,7 +161,7 @@ async def send_supplements_questionnaire(bot: Bot):
         AND NOT EXISTS (
             SELECT 1 FROM patient_history ph
             WHERE ph.patient_id = p.id
-            AND ph.questionnaire_type = 'supplements'
+            AND ph.answers->>'questionnaire_type' = 'supplements'
             AND DATE(ph.created_at) = CURRENT_DATE
         )
     """)
@@ -172,9 +172,7 @@ async def send_supplements_questionnaire(bot: Bot):
                 chat_id=user["telegram_id"],
                 text="💊 Пожалуйста, заполните анкету приема БАДов/витаминов: /supplements",
                 reply_markup=ReplyKeyboardMarkup(
-                    keyboard=[
-                        [KeyboardButton(text="/supplements")]
-                    ],
+                    keyboard=[[KeyboardButton(text="/supplements")]],
                     resize_keyboard=True,
                 ),
             )
@@ -191,7 +189,7 @@ async def send_awareness_quiz(bot: Bot):
         AND NOT EXISTS (
             SELECT 1 FROM patient_history ph
             WHERE ph.patient_id = p.id
-            AND ph.questionnaire_type = 'mindfulness'
+            AND ph.answers->>'questionnaire_type' = 'mindfulness'
             AND DATE(ph.created_at) = CURRENT_DATE
         )
     """)
@@ -219,7 +217,7 @@ async def send_supplements_quiz(bot: Bot):
         AND NOT EXISTS (
             SELECT 1 FROM patient_history ph
             WHERE ph.patient_id = p.id
-            AND ph.questionnaire_type = 'supplements'
+            AND ph.answers->>'questionnaire_type' = 'supplements'
             AND DATE(ph.created_at) = CURRENT_DATE
         )
     """)
@@ -247,7 +245,7 @@ async def send_safety_support_quiz(bot: Bot):
         AND NOT EXISTS (
             SELECT 1 FROM patient_history ph
             WHERE ph.patient_id = p.id
-            AND ph.questionnaire_type = 'safety_support'
+            AND ph.answers->>'questionnaire_type' = 'safety_support'
             AND DATE(ph.created_at) = CURRENT_DATE
         )
     """)
@@ -275,7 +273,7 @@ async def send_close_environment_quiz(bot: Bot):
         AND NOT EXISTS (
             SELECT 1 FROM patient_history ph
             WHERE ph.patient_id = p.id
-            AND ph.questionnaire_type = 'close_environment'
+            AND ph.answers->>'questionnaire_type' = 'close_environment'
             AND DATE(ph.created_at) = CURRENT_DATE
         )
     """)

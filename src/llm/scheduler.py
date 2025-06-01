@@ -1,10 +1,8 @@
-
 import asyncio
 from aiogram import Bot
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 from datetime import datetime, timedelta
-import datetime as dt
 import logging
 import pytz
 
@@ -15,7 +13,6 @@ from src.llm.service import dispatch_weekly_to_llm, dispatch_to_llm
 
 logger = logging.getLogger(__name__)
 scheduler = AsyncIOScheduler()
-
 
 
 async def run_daily_digest(bot: Bot):
@@ -38,7 +35,9 @@ async def run_daily_digest(bot: Bot):
             today_start = datetime(utc_now.year, utc_now.month, utc_now.day)
             today_end = today_start + timedelta(days=1)
 
-            records = await get_all_records_by_user(telegram_id, conn, today_start, today_end)
+            records = await get_all_records_by_user(
+                telegram_id, conn, today_start, today_end
+            )
             if not records:
                 logger.info(f"No records for {telegram_id}")
                 return
@@ -95,7 +94,12 @@ async def run_weekly_digest(bot: Bot):
 
     await asyncio.gather(*(handle_patient(p) for p in patients))
 
+
 def setup_llm_scheduler(bot: Bot):
-    scheduler.add_job(run_daily_digest, CronTrigger(minute="0", hour="*"), kwargs={"bot": bot})
-    scheduler.add_job(run_weekly_digest, CronTrigger(minute="0", hour="*"), kwargs={"bot": bot})
+    scheduler.add_job(
+        run_daily_digest, CronTrigger(minute="0", hour="*"), kwargs={"bot": bot}
+    )
+    scheduler.add_job(
+        run_weekly_digest, CronTrigger(minute="0", hour="*"), kwargs={"bot": bot}
+    )
     scheduler.start()

@@ -4,6 +4,7 @@ from aiogram import Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
+from aiogram.types import ReplyKeyboardRemove
 
 from src.bot.is_test_allowed import is_test_day_allowed
 from src.bot.keyboards import get_yes_no_kb
@@ -39,7 +40,8 @@ async def start_supplements_questionnaire(message: Message, state: FSMContext):
     await state.clear()
     if not await is_test_day_allowed("supplements"):
         await message.answer(
-            "⏳ Анкета приема БАДов/витаминов не предназначена для заполнения сегодня"
+            "⏳ Анкета приема БАДов/витаминов не предназначена для заполнения сегодня",
+            reply_markup=ReplyKeyboardRemove(),
         )
         return
     await message.answer(
@@ -59,7 +61,8 @@ async def process_taking_supplements(message: Message, state: FSMContext):
 
     if message.text == "Да":
         await message.answer(
-            "Что именно принимаете? (Перечислите названия и дозировки)"
+            "Что именно принимаете? (Перечислите названия и дозировки)",
+            reply_markup=ReplyKeyboardRemove(),
         )
         await state.set_state(SupplementsQuestionnaire.SUPPLEMENTS_DETAILS)
     else:
@@ -70,7 +73,10 @@ async def process_taking_supplements(message: Message, state: FSMContext):
 @router.message(SupplementsQuestionnaire.SUPPLEMENTS_DETAILS)
 async def process_supplements_details(message: Message, state: FSMContext):
     if len(message.text) < 3:  # Минимальная проверка на ввод
-        await message.answer("Пожалуйста, укажите хотя бы один препарат")
+        await message.answer(
+            "Пожалуйста, укажите хотя бы один препарат",
+            reply_markup=ReplyKeyboardRemove(),
+        )
         return
 
     await state.update_data(supplements_details=message.text)
@@ -91,5 +97,8 @@ async def finish_supplements_questionnaire(message: Message, state: FSMContext):
     if data["taking_supplements"] == "Да":
         summary += f"\nПрепараты: {data['supplements_details']}"
 
-    await message.answer(summary)
+    await message.answer(
+        summary,
+        reply_markup=ReplyKeyboardRemove(),
+    )
     await state.clear()

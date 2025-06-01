@@ -1,4 +1,4 @@
-from datetime import datetime
+import json
 from pathlib import Path
 from aiogram import Router, F
 from aiogram.types import Message, ContentType
@@ -7,16 +7,15 @@ from aiogram.fsm.context import FSMContext
 
 from src.bot.is_test_allowed import is_task_day_allowed
 from src.bot.states import BalanceTestStates
+from src.db.connection import get_db_connection
+from src.db.patient_repository import save_patient_record
 from src.media.s3_client import S3Client
 
 router = Router()
 s3_client = S3Client()
 
 
-# Путь к примеру видео
 current_dir = Path(__file__).parent
-example_video_path = current_dir / "examples" / "balance.MOV"
-
 temp_dir = current_dir / "temp"
 temp_dir.mkdir(exist_ok=True)
 
@@ -32,10 +31,10 @@ async def send_balance_instructions(message: Message, state: FSMContext):
 
     s3_key = "tasks-examples/balance.mp4"
     try:
-        video = await s3_client.get_media_as_buffered_file(s3_key)
+        media = await s3_client.get_media_as_buffered_file(s3_key)
 
         await message.answer_video(
-            video=video,
+            video=media,
             caption=(
                 "<b>Баланс</b>\n"
                 "Задание: «Тест на баланс на одной ноге».\n\n"
@@ -51,7 +50,7 @@ async def send_balance_instructions(message: Message, state: FSMContext):
             parse_mode="HTML",
         )
     except Exception as e:
-        await message.answer(f"⚠️ Не удалось загрузить видео с инструкцией: {e}")
+        await message.answer(f"⚠️ Не удалось загрузить медиа с инструкцией: {e}")
 
 
 @router.message(
@@ -74,7 +73,23 @@ async def handle_balance_video(message: Message, state: FSMContext):
         s3_url = await s3_client.upload_file(
             file_path=str(video_path),
             username=username,
-            filename=f"balance_{user_id}_{int(datetime.now().timestamp())}.mp4",
+            filename="balance.mp4",
+        )
+        conn = await get_db_connection()
+        answers = {
+            "questionnaire_type": "balance",
+            "prompt_type": "balance_tests",
+        }
+        await save_patient_record(
+            conn=conn,
+            telegram_id=user_id,
+            answers=json.dumps(
+                answers, ensure_ascii=False
+            ),  # Преобразуем в JSON строку
+            gpt_response="",
+            s3_links=[s3_url],
+            summary="Баланс",
+            is_daily=False,
         )
 
         await message.answer(
