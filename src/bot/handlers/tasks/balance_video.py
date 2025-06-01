@@ -11,6 +11,7 @@ from src.bot.utils import send_llm_advice
 from src.db.connection import get_db_connection
 from src.db.patient_repository import save_patient_record
 from src.media.s3_client import S3Client
+from src.media.video_processor import extract_contact_sheet_and_upload
 
 router = Router()
 s3_client = S3Client()
@@ -71,11 +72,14 @@ async def handle_balance_video(message: Message, state: FSMContext):
         await message.bot.download_file(file.file_path, destination=str(video_path))
 
         # Сохраняем в S3
-        s3_key = await s3_client.upload_file(
+        video_name = "balance.mp4"
+        video_key = await s3_client.upload_file(
             file_path=str(video_path),
             username=username,
-            filename="balance.mp4",
+            filename=video_name,
         )
+        contact_photo_key = await extract_contact_sheet_and_upload(video_path, video_name, username)
+
         conn = await get_db_connection()
         answers = {
             "questionnaire_type": "balance",
@@ -88,7 +92,7 @@ async def handle_balance_video(message: Message, state: FSMContext):
                 answers, ensure_ascii=False
             ),  # Преобразуем в JSON строку
             gpt_response="",
-            s3_links=[s3_key],
+            s3_links=[video_key, contact_photo_key],
             summary="Баланс",
             is_daily=False,
         )
@@ -99,7 +103,7 @@ async def handle_balance_video(message: Message, state: FSMContext):
             "- Длительность удержания на каждой ноге\n"
             "- Разницу между показателями"
         )
-        await send_llm_advice(message, {}, [s3_key])
+        await send_llm_advice(message, {}, [contact_photo_key])
         await state.clear()
 
     except Exception as e:

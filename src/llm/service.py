@@ -62,10 +62,13 @@ async def build_message_chain(history_blocks: list[str], prompt: str, media_keys
     for key in media_keys or []:
         try:
             mime_type, _ = mimetypes.guess_type(key)
-            base64_image = await s3_client.get_base64_image(key)
-            final_content.append({"type": "image_url", "image_url": {"url": base64_image}})
-        except Exception:
-            final_content.append({"type": "text", "text": f"[⚠️ Не удалось загрузить изображение: {key}]"})
+            if mime_type and mime_type.startswith("image/"):
+                base64_image = await s3_client.get_base64_image(key)
+                final_content.append({"type": "image_url", "image_url": {"url": base64_image}})
+            else:
+                final_content.append({"type": "text", "text": f"[⚠️ Пропущен файл: {key} — не является изображением ({mime_type})]"})
+        except Exception as e:
+            final_content.append({"type": "text", "text": f"[⚠️ Не удалось загрузить изображение: {key}] — {str(e)}"})
 
     messages.append(HumanMessage(content=final_content))
     return messages
