@@ -16,6 +16,7 @@ RUN uv sync --frozen
 COPY .env .env
 COPY src src
 COPY *.json .
+RUN mkdir -p temp
 
 ENTRYPOINT ["uv", "run"]
 CMD ["-m", "src.main"]

@@ -9,7 +9,6 @@ Create Date: 2025-05-23 18:14:04.958942
 from typing import Sequence, Union
 
 from alembic import op
-import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision: str = "db3185f1fc63"
@@ -29,6 +28,3 @@ def downgrade():
     op.execute(
         "ALTER TABLE patient_history ALTER COLUMN answers TYPE TEXT USING answers::text"
     )
-
-    # Удаляем добавленный столбец
-    op.drop_column("patient_history", "questionnaire_type")

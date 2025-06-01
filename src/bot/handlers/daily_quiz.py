@@ -4,6 +4,7 @@ from aiogram import Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
+from aiogram.types  import ReplyKeyboardRemove
 
 from src.bot.keyboards import (
     get_sleep_time_kb,
@@ -122,7 +123,8 @@ async def process_stress_level(message: Message, state: FSMContext):
 
     await state.update_data(stress_level=int(message.text))
     await message.answer(
-        "8. Что стало основным источником стресса прошедший день? (Напишите текст)"
+        "8. Что стало основным источником стресса прошедший день? (Напишите текст)",
+        reply_markup=ReplyKeyboardRemove(),
     )
     await state.set_state(DailyQuestionnaire.STRESS_SOURCE)
 
@@ -217,7 +219,8 @@ async def process_motivation_level(message: Message, state: FSMContext):
         return
 
     await state.update_data(motivation_level=int(message.text))
-    await message.answer("15. Сколько шагов в среднем Вы прошли вчера? (Введите число)")
+    await message.answer("15. Сколько шагов в среднем Вы прошли вчера? (Введите число)",
+        reply_markup=ReplyKeyboardRemove(),)
     await state.set_state(DailyQuestionnaire.STEPS_COUNT)
 
 
@@ -266,7 +269,8 @@ async def process_workout_pain(message: Message, state: FSMContext):
     await state.update_data(workout_pain=message.text)
 
     if message.text == "Да":
-        await message.answer("Укажите, где именно болит (напишите текст):")
+        await message.answer("Укажите, где именно болит (напишите текст):", 
+                             reply_markup=ReplyKeyboardRemove(),)
         await state.set_state(DailyQuestionnaire.WORKOUT_PAIN_LOCATION)
     else:
         await state.update_data(workout_pain_location="")
@@ -333,5 +337,6 @@ async def process_after_work_feeling(message: Message, state: FSMContext):
         is_daily=True,
     )
 
-    await message.answer("✅ Анкета успешно сохранена! Спасибо за участие!")
+    await message.answer("✅ Анкета успешно сохранена! Спасибо за участие!",
+        reply_markup=ReplyKeyboardRemove(),)
     await state.clear()

@@ -4,6 +4,7 @@ from aiogram import Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
+from aiogram.types  import ReplyKeyboardRemove
 
 from src.bot.is_test_allowed import is_test_day_allowed
 from src.bot.keyboards import get_yes_no_kb
@@ -62,7 +63,8 @@ async def process_chronic_diseases(message: Message, state: FSMContext):
     await state.update_data(chronic_diseases=message.text)
 
     if message.text == "Да":
-        await message.answer("Если хронические заболевания есть, то какие?")
+        await message.answer("Если хронические заболевания есть, то какие?",
+        reply_markup=ReplyKeyboardRemove(),)
         await state.set_state(HealthQuestionnaire.DISEASES_DETAILS)
     else:
         await state.update_data(diseases_details="")
@@ -92,7 +94,8 @@ async def process_medication(message: Message, state: FSMContext):
     await state.update_data(medication=message.text)
 
     if message.text == "Да":
-        await message.answer("Если да, то какие?")
+        await message.answer("Если да, то какие?",
+        reply_markup=ReplyKeyboardRemove(),)
         await state.set_state(HealthQuestionnaire.MEDICATION_DETAILS)
     else:
         await state.update_data(medication_details="")
@@ -122,7 +125,8 @@ async def process_chronic_pain(message: Message, state: FSMContext):
     await state.update_data(chronic_pain=message.text)
 
     if message.text == "Да":
-        await message.answer("Если есть, то где именно?")
+        await message.answer("Если есть, то где именно?",
+        reply_markup=ReplyKeyboardRemove(),)
         await state.set_state(HealthQuestionnaire.PAIN_DETAILS)
     else:
         await state.update_data(pain_details="")
@@ -161,5 +165,6 @@ async def finish_health_questionnaire(message: Message, state: FSMContext):
     if data["chronic_pain"] == "Да":
         summary += f"Локализация: {data['pain_details']}"
 
-    await message.answer(summary)
+    await message.answer(summary,
+        reply_markup=ReplyKeyboardRemove(),)
     await state.clear()

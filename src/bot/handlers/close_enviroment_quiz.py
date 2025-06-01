@@ -4,6 +4,7 @@ from aiogram import Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
+from aiogram.types  import ReplyKeyboardRemove
 
 from src.bot.is_test_allowed import is_test_day_allowed
 from src.bot.keyboards import (
@@ -112,5 +113,6 @@ async def process_communication_frequency(message: Message, state: FSMContext):
         f"Частота общения: {data['communication_frequency']}"
     )
 
-    await message.answer(report)
+    await message.answer(report,
+        reply_markup=ReplyKeyboardRemove(),)
     await state.clear()

@@ -4,6 +4,7 @@ from aiogram import Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
+from aiogram.types  import ReplyKeyboardRemove
 
 from src.bot.is_test_allowed import is_test_day_allowed
 from src.bot.keyboards import (
@@ -56,7 +57,8 @@ async def finish_questionnaire(message: Message, state: FSMContext, data: dict):
             f"5. Положительные изменения: {answers['positive_changes']}\n"
         )
 
-    await message.answer(report)
+    await message.answer(report, 
+        reply_markup=ReplyKeyboardRemove(),)
     await state.clear()
 
 
@@ -129,7 +131,8 @@ async def process_concentration_difficulty(message: Message, state: FSMContext):
     await state.update_data(concentration_difficulty=message.text)
     await message.answer(
         "5. Какие положительные изменения Вы заметили благодаря медитации? "
-        "(Напишите в свободной форме)"
+        "(Напишите в свободной форме)",
+        reply_markup=ReplyKeyboardRemove(),
     )
     await state.set_state(MindfulnessQuestionnaire.POSITIVE_CHANGES)
 
