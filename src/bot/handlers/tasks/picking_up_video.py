@@ -1,5 +1,4 @@
-from datetime import datetime
-from aiogram.types import BufferedInputFile
+import json
 from pathlib import Path
 from aiogram import Router, F
 from aiogram.types import Message, ContentType
@@ -8,6 +7,8 @@ from aiogram.fsm.context import FSMContext
 
 from src.bot.is_test_allowed import is_task_day_allowed
 from src.bot.states import PickUpObjectStates
+from src.db.connection import get_db_connection
+from src.db.patient_repository import save_patient_record
 from src.media.s3_client import S3Client
 
 router = Router()
@@ -31,32 +32,12 @@ async def send_pickup_instructions(message: Message, state: FSMContext):
         return
     await state.set_state(PickUpObjectStates.waiting_pickup_video)
 
-    if not example_video_path.exists():
-        await message.answer(
-            "<b>Подъем с пола</b>\n"
-            "Задание: «Подъём предмета с пола (например, телефона)».\n\n"
-            "В этом задании вам нужно записать, как вы поднимаете предмет с пола.\n\n"
-            "<b>Инструкции:</b>\n"
-            "1. Установите камеру так, чтобы в кадре было видно всё тело\n"
-            "2. Положите предмет перед собой на пол\n"
-            "3. Наклонитесь и поднимите предмет\n"
-            "4. Встаньте обратно\n"
-            "5. Выполните задание один раз\n\n"
-            "<b>Обратите внимание:</b>\n"
-            "— Двигайтесь в привычном темпе\n"
-            "— Не торопитесь, чтобы движения были видны\n"
-            "— Можно использовать любую технику (наклон или приседание)\n"
-            "— Убедитесь, что вы всегда в кадре",
-            parse_mode="HTML",
-        )
-        return
-
-    # Отправляем видео с инструкцией
-    with open(example_video_path, "rb") as f:
-        video = BufferedInputFile(f.read(), filename=example_video_path.name)
+    s3_key = "tasks-examples/picking_up.mp4"
+    try:
+        media = await s3_client.get_media_as_buffered_file(s3_key)
 
         await message.answer_video(
-            video=video,
+            video=media,
             caption=(
                 "<b>Подъем с пола</b>\n"
                 "Задание: «Подъём предмета с пола (например, телефона)».\n\n"
@@ -74,6 +55,8 @@ async def send_pickup_instructions(message: Message, state: FSMContext):
             ),
             parse_mode="HTML",
         )
+    except Exception as e:
+        await message.answer(f"⚠️ Не удалось загрузить медиа с инструкцией: {e}")
 
 
 @router.message(
@@ -92,17 +75,27 @@ async def handle_pickup_video(message: Message, state: FSMContext):
 
         await message.bot.download_file(file.file_path, destination=str(video_path))
 
-        # Сохраняем в S3
         s3_url = await s3_client.upload_file(
             file_path=str(video_path),
             username=username,
-            filename=f"pickup_{user_id}_{int(datetime.now().timestamp())}.mp4",
+            filename="picking_up.mp4",
+        )
+        conn = await get_db_connection()
+        answers = {
+            "questionnaire_type": "picking_up",
+            "prompt_type": "video_analysis",
+        }
+        await save_patient_record(
+            conn=conn,
+            telegram_id=user_id,
+            answers=json.dumps(answers, ensure_ascii=False),
+            gpt_response="",
+            s3_links=[s3_url],
+            summary="Поднятие объекта",
+            is_daily=False,
         )
 
-        await message.answer(
-            "✅ Видео подъема предмета сохранено для анализа\n\n"
-            "Наши специалисты изучат ваши движения и дадут рекомендации."
-        )
+        await message.answer("✅ Видео подъема предмета сохранено для анализа")
         await state.clear()
 
     except Exception as e:

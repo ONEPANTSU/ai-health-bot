@@ -40,18 +40,18 @@ async def is_task_day_allowed(task_name: str) -> bool:
 
     # Расписание заданий относительно даты старта
     task_schedule = {
-        "face_photo": [1, 21],  # Через 1
-        "hands_photo": [19],
-        "fullbody_photo": [2, 16],
-        "walking": [4, 18],
-        "running": [7, 28],
-        "squats": [9],
-        "neck_exercise": [8],
-        "balance": [26],
-        "plank": [14],
-        "pickup_object": [11],
-        "feet_photo": [8, 22],
-        "eye_photo": [14],
+        # "face_photo": [1, 21],  # Через 1
+        # "hands_photo": [19],
+        # "fullbody_photo": [2, 16],
+        # "walking": [4, 18],
+        # "running": [7, 28],
+        # "squats": [9],
+        # "neck_exercise": [8],
+        # "balance": [26],
+        # "plank": [14],
+        # "pickup_object": [11],
+        # "feet_photo": [8, 22],
+        # "eye_photo": [14],
     }
 
     return days_passed in task_schedule.get(task_name, [])

@@ -1,13 +1,15 @@
+import json
+
 from aiogram.fsm.context import FSMContext
-from aiogram.types import BufferedInputFile
 from pathlib import Path
 from aiogram import Router, F
 from aiogram.types import Message, ContentType
 from aiogram.filters import Command
-from datetime import datetime
 
 from src.bot.is_test_allowed import is_task_day_allowed
 from src.bot.states import RunningVideoStates
+from src.db.connection import get_db_connection
+from src.db.patient_repository import save_patient_record
 from src.media.s3_client import S3Client
 
 router = Router()
@@ -27,27 +29,23 @@ async def send_running_example(message: Message, state: FSMContext):
         )
         return
     await state.set_state(RunningVideoStates.waiting_running_video)
-    if not example_video_path.exists():
-        await message.answer("Пример видео временно недоступен")
-        return
 
-    # Читаем файл и создаем BufferedInputFile
-    with open(example_video_path, "rb") as f:
-        video_data = f.read()
+    s3_key = "tasks-examples/running.mp4"
+    try:
+        media = await s3_client.get_media_as_buffered_file(s3_key)
 
-    video = BufferedInputFile(file=video_data, filename="running_example.MOV")
-
-    # Отправляем видео
-    await message.answer_video(
-        video=video,
-        caption="<b>Бег</b>\n\n"
-        "Задание:<b> «Бег на дистанции 10-15 метров».</b>\n"
-        "Просмотрите ролик перед тем, как начать съёмку. Убедитесь, что:\n"
-        "— камера установлена стабильно и охватывает всю дистанцию,\n"
-        "— в кадре видно ваше движение туда и обратно.\n"
-        "Выполняйте бег в обычном для вас состоянии.",
-        parse_mode="HTML",
-    )
+        await message.answer_video(
+            video=media,
+            caption="<b>Бег</b>\n\n"
+            "Задание:<b> «Бег на дистанции 10-15 метров».</b>\n"
+            "Просмотрите ролик перед тем, как начать съёмку. Убедитесь, что:\n"
+            "— камера установлена стабильно и охватывает всю дистанцию,\n"
+            "— в кадре видно ваше движение туда и обратно.\n"
+            "Выполняйте бег в обычном для вас состоянии.",
+            parse_mode="HTML",
+        )
+    except Exception as e:
+        await message.answer(f"⚠️ Не удалось загрузить медиа с инструкцией: {e}")
 
 
 @router.message(
@@ -56,21 +54,34 @@ async def send_running_example(message: Message, state: FSMContext):
 async def handle_running_video(message: Message, state: FSMContext):
     user_id = message.from_user.id
     username = message.from_user.username or f"user_{user_id}"
+    temp_dir = current_dir / "temp"
+    temp_dir.mkdir(exist_ok=True)
+    video_path = temp_dir / f"{user_id}_{message.video.file_id}.mp4"
 
     try:
         video_file = await message.bot.get_file(message.video.file_id)
-        temp_dir = current_dir / "temp"
-        temp_dir.mkdir(exist_ok=True)
-        video_path = temp_dir / f"{user_id}_{message.video.file_id}.mp4"
 
         await message.bot.download_file(video_file.file_path, destination=video_path)
 
         s3_url = await s3_client.upload_file(
             file_path=str(video_path),
             username=username,
-            filename=f"running_{datetime.now().strftime('%Y%m%d_%H%M%S')}.mp4",
+            filename="running.mp4",
         )
-
+        conn = await get_db_connection()
+        answers = {
+            "questionnaire_type": "running",
+            "prompt_type": "video_analysis",
+        }
+        await save_patient_record(
+            conn=conn,
+            telegram_id=user_id,
+            answers=json.dumps(answers, ensure_ascii=False),
+            gpt_response="",
+            s3_links=[s3_url],
+            summary="Бег",
+            is_daily=False,
+        )
         await message.answer("✅ Ваше видео с бегом успешно сохранено!\n")
         await state.clear()
 

@@ -1,5 +1,7 @@
-from datetime import datetime
-from aiogram.types import BufferedInputFile, InputMediaPhoto
+import asyncio
+import json
+from collections import defaultdict
+from aiogram.types import InputMediaPhoto
 from pathlib import Path
 from aiogram import Router, F
 from aiogram.types import Message, ContentType
@@ -8,6 +10,8 @@ from aiogram.fsm.context import FSMContext
 
 from src.bot.is_test_allowed import is_task_day_allowed
 from src.bot.states import HandsPhotoStates
+from src.db.connection import get_db_connection
+from src.db.patient_repository import save_patient_record
 from src.media.s3_client import S3Client
 
 router = Router()
@@ -22,6 +26,8 @@ example_photos = [
 temp_dir = current_dir / "temp"
 temp_dir.mkdir(exist_ok=True)
 
+pending_hands_groups = defaultdict(list)
+
 
 @router.message(Command("hands"))
 async def send_hands_instructions(message: Message, state: FSMContext):
@@ -30,39 +36,29 @@ async def send_hands_instructions(message: Message, state: FSMContext):
             '⏳ Задание "Фото рук" не предназначено для прохождения сегодня'
         )
         return
+
     await state.set_state(HandsPhotoStates.waiting_hands_photo)
+    await state.update_data(photos=[])  # Инициализируем список для фото
 
-    if not all(p.exists() for p in example_photos):
-        await message.answer(
-            "<b>Фото рук</b>\n\n"
-            "Расположите кисти рук так, чтобы полностью были видны как кисть, так и пальцы.\n\n"
-            "<b>Требования:</b>\n"
-            "— Держите руки в нейтральном положении\n"
-            "— Избегайте сгибания или скручивания\n"
-            "— Обеспечьте равномерное освещение\n"
-            "— Избегайте теней и бликов\n"
-            "— Кожа должна быть хорошо видна\n"
-            "— Без украшений и мешающих предметов",
-            parse_mode="HTML",
-        )
-        return
-
+    s3_keys = ["tasks-examples/palms_back.jpg", "tasks-examples/palms_front.jpg"]
     media = []
-    for i, path in enumerate(example_photos, 1):
-        with open(path, "rb") as f:
+
+    try:
+        for i, s3_key in enumerate(s3_keys, 1):
+            buffered_file = await s3_client.get_media_as_buffered_file(s3_key)
+
             media.append(
                 InputMediaPhoto(
-                    media=BufferedInputFile(f.read(), filename=path.name),
+                    media=buffered_file,
                     caption=(
                         "<b>Фото рук</b>\n\n"
-                        "Расположите кисти рук так, чтобы полностью были видны как кисть, так и пальцы.\n\n"
+                        "Необходимо отправить ровно 2 фотографии:\n"
+                        "1. Фото ладоней\n"
+                        "2. Фото тыльной стороны кистей\n\n"
                         "<b>Требования:</b>\n"
-                        "— Держите руки в нейтральном положении\n"
-                        "— Избегайте сгибания или скручивания\n"
-                        "— Обеспечьте равномерное освещение\n"
-                        "— Избегайте теней и бликов\n"
-                        "— Кожа должна быть хорошо видна\n"
-                        "— Без украшений и мешающих предметов"
+                        "- Четко видны все пальцы и кисти\n"
+                        "- Равномерное освещение\n"
+                        "- Без украшений\n\n"
                         if i == 1
                         else None
                     ),
@@ -70,38 +66,101 @@ async def send_hands_instructions(message: Message, state: FSMContext):
                 )
             )
 
-    await message.answer_media_group(media=media)
+        await message.answer_media_group(media=media)
+
+    except Exception as e:
+        await message.answer(f"⚠️ Не удалось загрузить примеры фото: {e}")
 
 
 @router.message(
     F.content_type == ContentType.PHOTO, HandsPhotoStates.waiting_hands_photo
 )
 async def handle_hands_photo(message: Message, state: FSMContext):
-    user_id = message.from_user.id
-    username = message.from_user.username or f"user_{user_id}"
-    photo = message.photo[-1]
-    photo_path = None
+    if message.media_group_id:
+        if message.media_group_id not in pending_hands_groups:
+            pending_hands_groups[message.media_group_id] = {
+                "messages": [],
+                "user_id": message.from_user.id,
+                "state": state,
+            }
+            asyncio.create_task(process_hands_group(message.media_group_id))
+
+        pending_hands_groups[message.media_group_id]["messages"].append(message)
+        return
+
+    # Одиночные фото не принимаем
+    await message.answer(
+        "❌ Необходимо отправить ровно 2 фотографии. Пожалуйста, выделите оба фото и отправьте как один альбом."
+    )
+
+
+async def process_hands_group(group_id: str):
+    """Обработка группы из 2 фото рук"""
+    await asyncio.sleep(3)  # Ждем все фото группы
+
+    if group_id not in pending_hands_groups:
+        return
+
+    group_data = pending_hands_groups.pop(group_id)
+    messages = group_data["messages"]
+    user_id = group_data["user_id"]
+    state = group_data["state"]
+
+    # Проверяем количество фото
+    if len(messages) != 2:
+        await messages[0].answer(
+            "❌ Необходимо отправить ровно 2 фотографии. Пожалуйста, попробуйте еще раз."
+        )
+        await state.clear()
+        return
+
+    username = messages[0].from_user.username or f"user_{user_id}"
+    s3_urls = []
+    conn = None
 
     try:
-        # Скачиваем фото
-        file = await message.bot.get_file(photo.file_id)
-        photo_path = temp_dir / f"hands_{user_id}_{file.file_id}.jpg"
+        photo_types = ["palms", "backs"]  # Типы фото
 
-        await message.bot.download_file(file.file_path, destination=str(photo_path))
+        for i, msg in enumerate(messages):
+            photo = msg.photo[-1]
+            file = await msg.bot.get_file(photo.file_id)
+            photo_path = temp_dir / f"hands_{user_id}_{photo_types[i]}.jpg"
 
-        # Сохраняем в S3
-        s3_url = await s3_client.upload_file(
-            file_path=str(photo_path),
-            username=username,
-            filename=f"hands_{user_id}_{int(datetime.now().timestamp())}.jpg",
+            await msg.bot.download_file(file.file_path, destination=str(photo_path))
+
+            s3_url = await s3_client.upload_file(
+                file_path=str(photo_path),
+                username=username,
+                filename=f"hands_{photo_types[i]}.jpg",
+            )
+            s3_urls.append(s3_url)
+
+            if photo_path.exists():
+                photo_path.unlink()
+
+        # Сохраняем в базу
+        conn = await get_db_connection()
+        answers = {
+            "questionnaire_type": "hands",
+            "prompt_type": "photo_analysis",
+            "photos_count": 2,
+        }
+        await save_patient_record(
+            conn=conn,
+            telegram_id=user_id,
+            answers=json.dumps(answers, ensure_ascii=False),
+            gpt_response="",
+            s3_links=s3_urls,
+            summary="Фото рук (2 ракурса)",
+            is_daily=False,
         )
 
-        await message.answer("✅ Фото рук сохранено для анализа")
+        await messages[0].answer("✅ Оба фото рук сохранены для анализа")
         await state.clear()
 
     except Exception as e:
-        await message.answer("❌ Ошибка при сохранении фото")
-        print(f"Error: {e}")
+        await messages[0].answer("❌ Ошибка при сохранении фото")
+        print(f"Error processing hands group: {e}")
     finally:
-        if photo_path and photo_path.exists():
-            photo_path.unlink()
+        if conn:
+            await conn.close()

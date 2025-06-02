@@ -1,6 +1,5 @@
-from datetime import datetime
+import json
 from aiogram.fsm.context import FSMContext
-from aiogram.types import BufferedInputFile
 from pathlib import Path
 from aiogram import Router, F
 from aiogram.types import Message, ContentType
@@ -8,6 +7,8 @@ from aiogram.filters import Command
 
 from src.bot.is_test_allowed import is_task_day_allowed
 from src.bot.states import NeckVideoStates
+from src.db.connection import get_db_connection
+from src.db.patient_repository import save_patient_record
 from src.media.s3_client import S3Client
 
 router = Router()
@@ -29,25 +30,13 @@ async def send_neck_instructions(message: Message, state: FSMContext):
         )
         return
     await state.set_state(NeckVideoStates.waiting_neck_video)
-    if not example_neck_video.exists():
-        await message.answer(
-            "<b>Шейно-воротниковый отдел</b>\n\n"
-            "Задание: «Повороты головы и круговые движения шеи», записать это на видео. Пожалуйста, следуйте инструкциям:\n\n"
-            "1. Встаньте прямо. Спина ровная, плечи расслаблены.\n"
-            "2. Установите камеру так, чтобы ваше лицо и верхняя часть туловища хорошо были видны в кадре.\n"
-            "3. Сначала выполните поворот головы в каждую сторону — вправо и влево.\n"
-            "4. Затем выполните круговые движения в обе стороны.\n"
-            "5. Дышите ровно. Не напрягайте шею и плечи.\n\n"
-            "Пожалуйста, убедитесь, что вы всё время остаетесь в кадре, а движения хорошо видны.",
-            parse_mode="HTML",
-        )
-        return
 
-    with open(example_neck_video, "rb") as f:
-        video = BufferedInputFile(f.read(), filename=example_neck_video.name)
+    s3_key = "tasks-examples/neck.mp4"
+    try:
+        media = await s3_client.get_media_as_buffered_file(s3_key)
 
         await message.answer_video(
-            video=video,
+            video=media,
             caption=(
                 "<b>Шейно-воротниковый отдел</b>\n\n"
                 "Задание: «Повороты головы и круговые движения шеи», записать это на видео. Пожалуйста, следуйте инструкциям:\n\n"
@@ -60,6 +49,8 @@ async def send_neck_instructions(message: Message, state: FSMContext):
             ),
             parse_mode="HTML",
         )
+    except Exception as e:
+        await message.answer(f"⚠️ Не удалось загрузить медиа с инструкцией: {e}")
 
 
 @router.message(F.content_type == ContentType.VIDEO, NeckVideoStates.waiting_neck_video)
@@ -80,9 +71,22 @@ async def handle_neck_video(message: Message, state: FSMContext):
         s3_url = await s3_client.upload_file(
             file_path=str(video_path),
             username=username,
-            filename=f"neck_{user_id}_{int(datetime.now().timestamp())}.mp4",
+            filename="neck.mp4",
         )
-
+        conn = await get_db_connection()
+        answers = {
+            "questionnaire_type": "neck",
+            "prompt_type": "video_analysis",
+        }
+        await save_patient_record(
+            conn=conn,
+            telegram_id=user_id,
+            answers=json.dumps(answers, ensure_ascii=False),
+            gpt_response="",
+            s3_links=[s3_url],
+            summary="Вращение головой",
+            is_daily=False,
+        )
         await message.answer("✅ Видео упражнений для шеи сохранено для анализа")
         await state.clear()
 

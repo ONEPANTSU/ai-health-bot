@@ -1,7 +1,9 @@
-from datetime import datetime
+import asyncio
+import json
+from collections import defaultdict
 
 from aiogram.fsm.context import FSMContext
-from aiogram.types import BufferedInputFile, InputMediaPhoto
+from aiogram.types import InputMediaPhoto
 from pathlib import Path
 from aiogram import Router, F
 from aiogram.types import Message, ContentType
@@ -9,6 +11,8 @@ from aiogram.filters import Command
 
 from src.bot.is_test_allowed import is_task_day_allowed
 from src.bot.states import FacePhotoStates
+from src.db.connection import get_db_connection
+from src.db.patient_repository import save_patient_record
 from src.media.s3_client import S3Client
 
 
@@ -17,13 +21,11 @@ s3_client = S3Client()
 
 # Пути к примерам фото
 current_dir = Path(__file__).parent
-example_photos = [
-    current_dir / "examples" / "forehead.jpg",
-    current_dir / "examples" / "side_from_side.jpg",
-]
 
 temp_dir = current_dir / "temp"
 temp_dir.mkdir(exist_ok=True)
+
+pending_media_groups = defaultdict(list)
 
 
 @router.message(Command("face"))
@@ -35,25 +37,22 @@ async def send_face_instructions(message: Message, state: FSMContext):
         return
     await state.set_state(FacePhotoStates.waiting_face_photo)
 
-    if not all(p.exists() for p in example_photos):
-        await message.answer("Примеры фото временно недоступны")
-        return
+    s3_keys = ["tasks-examples/face.jpg", "tasks-examples/forehead.jpg"]
 
-    # Создаем альбом с первым фото, содержащим описание
     media = []
-    for i, path in enumerate(example_photos, 1):
-        with open(path, "rb") as f:
+    try:
+        for i, s3_key in enumerate(s3_keys, 1):
+            buffered_file = await s3_client.get_media_as_buffered_file(s3_key)
+
             media.append(
                 InputMediaPhoto(
-                    media=BufferedInputFile(f.read(), filename=path.name),
+                    media=buffered_file,
                     caption=(
                         "<b>Фото лица</b>\n"
-                        "Для получения качественного макрофото лица рекомендуется выполнить следующие условия:\n"
-                        "1. Сделайте снимок без использования косметики, чтобы максимально точно отобразить естественное состояние кожи.\n"
-                        "2. Обеспечьте хорошее освещение, равномерно освещая лицо, чтобы подчеркнуть текстуру и особенности кожи.\n"
-                        "3. Постарайтесь избегать бликов и теней, которые могут скрывать детали.\n"
-                        "4. Расположите камеру так, чтобы объектив был близко к лицу, фокусируясь на деталях кожи — поры, морщинки, неровности.\n"
-                        "5. Удерживайте лицо в спокойном положении, избегая движений и мимики.\n"
+                        "Для анализа необходимо отправить ровно 2 фотографии:\n"
+                        "1. Фото лица анфас\n"
+                        "2. Фото лба крупным планом\n\n"
+                        "<b>Отправьте оба фото как один альбом (выделите 2 фото и отправьте вместе)</b>"
                         if i == 1
                         else None
                     ),
@@ -61,36 +60,94 @@ async def send_face_instructions(message: Message, state: FSMContext):
                 )
             )
 
-    await message.answer_media_group(media=media)
+        await message.answer_media_group(media=media)
+
+    except Exception as e:
+        await message.answer(f"⚠️ Не удалось загрузить примеры фото: {e}")
+        print(f"Error loading example photos: {e}")
 
 
 @router.message(F.content_type == ContentType.PHOTO, FacePhotoStates.waiting_face_photo)
 async def handle_face_photo(message: Message, state: FSMContext):
-    user_id = message.from_user.id
-    username = message.from_user.username or f"user_{user_id}"
-    photo = message.photo[-1]
-    photo_path = None  # Инициализируем переменную
+    if message.media_group_id:
+        pending_media_groups[message.media_group_id].append(message)
+
+        if len(pending_media_groups[message.media_group_id]) == 1:
+            asyncio.create_task(process_face_group(message.media_group_id, state))
+        return
+
+    # Одиночные фото не принимаем
+    await message.answer(
+        "❌ Необходимо отправить ровно 2 фотографии. Пожалуйста, выделите оба фото и отправьте как один альбом."
+    )
+
+
+async def process_face_group(group_id: str, state: FSMContext):
+    """Обработка группы из 2 фото"""
+    await asyncio.sleep(3)  # Ждем все фото группы
+
+    if group_id not in pending_media_groups:
+        return
+
+    messages = pending_media_groups.pop(group_id)
+
+    # Проверяем количество фото
+    if len(messages) != 2:
+        await messages[0].answer(
+            "❌ Необходимо отправить ровно 2 фотографии. Пожалуйста, попробуйте еще раз."
+        )
+        await state.clear()
+        return
+
+    user_id = messages[0].from_user.id
+    username = messages[0].from_user.username or f"user_{user_id}"
+    s3_urls = []
+    conn = None
 
     try:
-        # Скачиваем фото
-        file = await message.bot.get_file(photo.file_id)
-        photo_path = temp_dir / f"face_{user_id}_{file.file_id}.jpg"
+        # Определяем типы фото
+        photo_types = ["face_front", "forehead"]
 
-        await message.bot.download_file(file.file_path, destination=str(photo_path))
+        for i, msg in enumerate(messages):
+            photo = msg.photo[-1]
+            file = await msg.bot.get_file(photo.file_id)
+            photo_path = temp_dir / f"face_{user_id}_{photo_types[i]}.jpg"
 
-        # Сохраняем в S3
-        s3_url = await s3_client.upload_file(
-            file_path=str(photo_path),
-            username=username,
-            filename=f"face_{user_id}_{int(datetime.now().timestamp())}.jpg",
+            await msg.bot.download_file(file.file_path, destination=str(photo_path))
+
+            s3_url = await s3_client.upload_file(
+                file_path=str(photo_path),
+                username=username,
+                filename=f"face_{photo_types[i]}.jpg",
+            )
+            s3_urls.append(s3_url)
+
+            if photo_path.exists():
+                photo_path.unlink()
+
+        # Сохраняем в базу
+        conn = await get_db_connection()
+        answers = {
+            "questionnaire_type": "face",
+            "prompt_type": "photo_analysis",
+            "photos_received": 2,
+        }
+        await save_patient_record(
+            conn=conn,
+            telegram_id=user_id,
+            answers=json.dumps(answers, ensure_ascii=False),
+            gpt_response="",
+            s3_links=s3_urls,
+            summary="Фото лица (2 ракурса)",
+            is_daily=False,
         )
 
-        await message.answer("✅ Фото сохранено для анализа")
+        await messages[0].answer("✅ Оба фото лица сохранены для анализа")
         await state.clear()
 
     except Exception as e:
-        await message.answer("❌ Ошибка при сохранении фото")
-        print(f"Error: {e}")
+        await messages[0].answer("❌ Ошибка при сохранении фото")
+        print(f"Error processing face group: {e}")
     finally:
-        if photo_path and photo_path.exists():
-            photo_path.unlink()
+        if conn:
+            await conn.close()

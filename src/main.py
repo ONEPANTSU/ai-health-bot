@@ -32,6 +32,7 @@ from src.bot.handlers.tasks.eye_photo import router as eye_photo_router
 from src.bot.handlers.tasks.plank_video import router as plank_video_router
 from src.bot.handlers.timezone import router as timezone_router
 from src.bot.handlers.testing import router as testing_router
+
 from src.llm.scheduler import setup_llm_scheduler
 import logging
 
@@ -43,7 +44,8 @@ logging.basicConfig(
 
 async def main():
     bot = Bot(
-        token=config.BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML)
+        token=str(config.BOT_TOKEN),
+        default=DefaultBotProperties(parse_mode=ParseMode.HTML),
     )
     commands = [
         BotCommand(command="start", description="Начать общение с ботом (Регистрация)"),
@@ -65,18 +67,22 @@ async def main():
             description="Начать анкету субъективного здоровья",
         ),
         BotCommand(command="supplements", description="Начать анкету добавок"),
-        BotCommand(command="balance", description="Начать анкету добавок"),
-        BotCommand(command="eye", description="Начать анкету добавок"),
-        BotCommand(command="face", description="Начать анкету добавок"),
-        BotCommand(command="feet", description="Начать анкету добавок"),
-        BotCommand(command="full_body", description="Начать анкету добавок"),
-        BotCommand(command="hands", description="Начать анкету добавок"),
-        BotCommand(command="neck", description="Начать анкету добавок"),
-        BotCommand(command="picking_up", description="Начать анкету добавок"),
-        BotCommand(command="plank", description="Начать анкету добавок"),
-        BotCommand(command="running", description="Начать анкету добавок"),
-        BotCommand(command="squats", description="Начать анкету добавок"),
-        BotCommand(command="walking", description="Начать анкету добавок"),
+        BotCommand(command="balance", description="Начать задание 'Баланс'"),
+        BotCommand(command="eye", description="Начать задание 'Микрофото глаза'"),
+        BotCommand(command="face", description="Начать задание 'Фото лица'"),
+        BotCommand(command="feet", description="Начать задание 'Фото стоп'"),
+        BotCommand(
+            command="full_body", description="Начать задание 'Фото в полный рост'"
+        ),
+        BotCommand(command="hands", description="Начать задание 'Фото рук'"),
+        BotCommand(command="neck", description="Начать задание 'Вращение головой'"),
+        BotCommand(
+            command="picking_up", description="Начать задание 'Поднятие объекта'"
+        ),
+        BotCommand(command="plank", description="Начать задание 'Планка'"),
+        BotCommand(command="running", description="Начать задание 'Бег'"),
+        BotCommand(command="squats", description="Начать задание 'Приседания'"),
+        BotCommand(command="walking", description="Начать задание 'Хождение'"),
     ]
     await bot.set_my_commands(commands)
 

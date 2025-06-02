@@ -1,5 +1,4 @@
-from datetime import datetime
-from aiogram.types import BufferedInputFile
+import json
 from pathlib import Path
 from aiogram import Router, F
 from aiogram.types import Message, ContentType
@@ -8,6 +7,8 @@ from aiogram.fsm.context import FSMContext
 
 from src.bot.is_test_allowed import is_task_day_allowed
 from src.bot.states import PlankStates
+from src.db.connection import get_db_connection
+from src.db.patient_repository import save_patient_record
 from src.media.s3_client import S3Client
 
 router = Router()
@@ -31,23 +32,22 @@ async def send_plank_instructions(message: Message, state: FSMContext):
         )
         return
     await state.set_state(PlankStates.waiting_plank_video)
+    s3_key = "tasks-examples/plank.jpg"
+    try:
+        media = await s3_client.get_media_as_buffered_file(s3_key)
 
-    # Сначала отправляем фото с техникой
-    if example_photo_path.exists():
-        with open(example_photo_path, "rb") as f:
-            photo = BufferedInputFile(f.read(), filename=example_photo_path.name)
-            await message.answer_photo(
-                photo=photo,
-                caption="<b>Видео в планке</b>\n\n"
-                "<b>Правильная техника планки:</b>\n"
-                "- Плечи прямо над локтями\n"
-                "- Мышцы живота напряжены\n"
-                "- Касание пола: мыски ног и предплечья\n"
-                "- Без прогибов в пояснице",
-                parse_mode="HTML",
-            )
-    else:
-        await message.answer("⚠️ Пример техники временно недоступен")
+        await message.answer_photo(
+            photo=media,
+            caption="<b>Видео в планке</b>\n\n"
+            "<b>Правильная техника планки:</b>\n"
+            "- Плечи прямо над локтями\n"
+            "- Мышцы живота напряжены\n"
+            "- Касание пола: мыски ног и предплечья\n"
+            "- Без прогибов в пояснице",
+            parse_mode="HTML",
+        )
+    except Exception as e:
+        await message.answer(f"⚠️ Не удалось загрузить медиа с инструкцией: {e}")
 
 
 @router.message(F.content_type == ContentType.VIDEO, PlankStates.waiting_plank_video)
@@ -58,7 +58,6 @@ async def handle_plank_video(message: Message, state: FSMContext):
     video_path = None
 
     try:
-        # Скачиваем видео
         file = await message.bot.get_file(video.file_id)
         video_path = temp_dir / f"plank_{user_id}_{file.file_id}.mp4"
 
@@ -68,7 +67,21 @@ async def handle_plank_video(message: Message, state: FSMContext):
         s3_url = await s3_client.upload_file(
             file_path=str(video_path),
             username=username,
-            filename=f"plank_{user_id}_{int(datetime.now().timestamp())}.mp4",
+            filename="plank.mp4",
+        )
+        conn = await get_db_connection()
+        answers = {
+            "questionnaire_type": "plank",
+            "prompt_type": "video_analysis",
+        }
+        await save_patient_record(
+            conn=conn,
+            telegram_id=user_id,
+            answers=json.dumps(answers, ensure_ascii=False),
+            gpt_response="",
+            s3_links=[s3_url],
+            summary="Планка",
+            is_daily=False,
         )
 
         await message.answer("✅ Видео планки получено")

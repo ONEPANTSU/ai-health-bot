@@ -31,23 +31,23 @@ async def send_eye_instructions(message: Message, state: FSMContext):
     s3_key = "tasks-examples/eye.jpg"
     try:
         media = await s3_client.get_media_as_buffered_file(s3_key)
-
-        await message.answer_video(
+        caption = (
+            "<b>Макрофото глаза</b>\n\n"
+            "<b>Требования к фото:</b>\n"
+            "1. Сфотографируйте один глаз крупным планом\n"
+            "2. Используйте хорошее освещение без бликов\n"
+            "3. Фокус должен быть на радужной оболочке\n"
+            "4. Избегайте теней на глазу\n"
+            "5. Глаз должен быть открыт естественно\n\n"
+            "<b>Советы:</b>\n"
+            "- Используйте макрорежим камеры\n"
+            "- Снимайте при дневном свете\n"
+            "- Держите камеру устойчиво\n"
+            "- Сделайте несколько снимков для выбора лучшего"
+        )
+        await message.answer_photo(
             photo=media,
-            caption=(
-                "<b>Макрофото глаза</b>\n\n"
-                "<b>Требования к фото:</b>\n"
-                "1. Сфотографируйте один глаз крупным планом\n"
-                "2. Используйте хорошее освещение без бликов\n"
-                "3. Фокус должен быть на радужной оболочке\n"
-                "4. Избегайте теней на глазу\n"
-                "5. Глаз должен быть открыт естественно\n\n"
-                "<b>Советы:</b>\n"
-                "- Используйте макрорежим камеры\n"
-                "- Снимайте при дневном свете\n"
-                "- Держите камеру устойчиво\n"
-                "- Сделайте несколько снимков для выбора лучшего",
-            ),
+            caption=caption,
             parse_mode="HTML",
         )
     except Exception as e:
@@ -58,7 +58,7 @@ async def send_eye_instructions(message: Message, state: FSMContext):
 async def handle_eye_photo(message: Message, state: FSMContext):
     user_id = message.from_user.id
     username = message.from_user.username or f"user_{user_id}"
-    photo = message.photo[-1]  # Берем самое качественное фото
+    photo = message.photo[-1]
     photo_path = None
 
     try:
@@ -82,9 +82,7 @@ async def handle_eye_photo(message: Message, state: FSMContext):
         await save_patient_record(
             conn=conn,
             telegram_id=user_id,
-            answers=json.dumps(
-                answers, ensure_ascii=False
-            ),  # Преобразуем в JSON строку
+            answers=json.dumps(answers, ensure_ascii=False),
             gpt_response="",
             s3_links=[s3_url],
             summary="Макрофото глаза",

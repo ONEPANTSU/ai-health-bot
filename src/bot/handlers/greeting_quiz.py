@@ -42,8 +42,7 @@ async def save_greeting_data(telegram_id: int, data: dict):
 
 
 @router.message(Command("start"))
-async def handle_start(msg: Message, bot: Bot, state: FSMContext):
-    await state.clear()
+async def handle_start(msg: Message, bot: Bot):
     conn = await get_db_connection()
 
     # Пытаемся автоматически определить часовой пояс
@@ -57,10 +56,7 @@ async def handle_start(msg: Message, bot: Bot, state: FSMContext):
         timezone=tz,
     )
 
-    await msg.answer(
-        "👋 Вы зарегистрированы!",
-        reply_markup=ReplyKeyboardRemove(),
-    )
+    await msg.answer("👋 Вы зарегистрированы!")
     await conn.close()
 
 

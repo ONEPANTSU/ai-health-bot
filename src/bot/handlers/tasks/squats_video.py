@@ -1,6 +1,5 @@
-from datetime import datetime
+import json
 from aiogram.fsm.context import FSMContext
-from aiogram.types import BufferedInputFile
 from pathlib import Path
 from aiogram import Router, F
 from aiogram.types import Message, ContentType
@@ -8,6 +7,8 @@ from aiogram.filters import Command
 
 from src.bot.is_test_allowed import is_task_day_allowed
 from src.bot.states import SquatsVideoStates
+from src.db.connection import get_db_connection
+from src.db.patient_repository import save_patient_record
 from src.media.s3_client import S3Client
 
 router = Router()
@@ -30,31 +31,16 @@ async def send_squats_instructions(message: Message, state: FSMContext):
         return
     await state.set_state(SquatsVideoStates.waiting_squats_video)
 
-    if not example_squats_video.exists():
-        await message.answer(
-            "<b>Приседания</b>\n"
-            "Задание: «10 приседаний».\n\n"
-            "Перед тем как начать съёмку, внимательно посмотрите видеоинструкцию. Убедитесь, что:\n"
-            "— камера установлена стабильно и снимает вас в полный рост,\n"
-            "— вас хорошо видно на протяжении всего выполнения упражнения,\n"
-            "— вы выполняете 10 приседаний подряд без пауз и остановок,\n"
-            "— приседайте в своём обычном, комфортном темпе.\n\n"
-            "Старайтесь держать спину прямо, опускаясь до уровня, при котором бёдра параллельны полу. "
-            "Колени не должны выходить за пределы носков.",
-            parse_mode="HTML",
-        )
-        return
-
-    # Отправляем видео с инструкцией
-    with open(example_squats_video, "rb") as f:
-        video = BufferedInputFile(f.read(), filename=example_squats_video.name)
+    s3_key = "tasks-examples/squats.mp4"
+    try:
+        media = await s3_client.get_media_as_buffered_file(s3_key)
 
         await message.answer_video(
-            video=video,
+            video=media,
             caption=(
                 "<b>Приседания</b>\n"
                 "Задание: «10 приседаний».\n\n"
-                "Перед тем как начать съёмку, убедитесь, что:\n"
+                "Перед тем как начать съёмку, внимательно посмотрите видеоинструкцию. Убедитесь, что:\n"
                 "— камера установлена стабильно и снимает вас в полный рост,\n"
                 "— вас хорошо видно на протяжении всего выполнения упражнения,\n"
                 "— вы выполняете 10 приседаний подряд без пауз и остановок,\n"
@@ -64,6 +50,8 @@ async def send_squats_instructions(message: Message, state: FSMContext):
             ),
             parse_mode="HTML",
         )
+    except Exception as e:
+        await message.answer(f"⚠️ Не удалось загрузить медиа с инструкцией: {e}")
 
 
 @router.message(
@@ -82,11 +70,24 @@ async def handle_squats_video(message: Message, state: FSMContext):
 
         await message.bot.download_file(file.file_path, destination=str(video_path))
 
-        # Сохраняем в S3
         s3_url = await s3_client.upload_file(
             file_path=str(video_path),
             username=username,
-            filename=f"squats_{user_id}_{int(datetime.now().timestamp())}.mp4",
+            filename="squats.mp4",
+        )
+        conn = await get_db_connection()
+        answers = {
+            "questionnaire_type": "squats",
+            "prompt_type": "video_analysis",
+        }
+        await save_patient_record(
+            conn=conn,
+            telegram_id=user_id,
+            answers=json.dumps(answers, ensure_ascii=False),
+            gpt_response="",
+            s3_links=[s3_url],
+            summary="Приседания",
+            is_daily=False,
         )
 
         await message.answer("✅ Видео приседаний сохранено для анализа")
