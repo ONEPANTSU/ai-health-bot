@@ -1,4 +1,4 @@
-name: ai-health
+name: ai_health
 services:
   app:
     build:
