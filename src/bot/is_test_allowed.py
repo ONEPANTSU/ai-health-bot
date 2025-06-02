@@ -16,16 +16,17 @@ async def is_test_day_allowed(test_name: str) -> bool:
     days_passed = (datetime.now() - start_date).days
 
     test_schedule = {
-        "greeting": [0],
-        "health": [3],
-        "nutrition": [4, 7],
-        "body": [9],
-        "supplements": [10],
-        "mindfulness": [13],
-        "safety": [15],
-        "close_environment": [17],
+        # "greeting": [0],
+        # "health": [3],
+        # "nutrition": [4, 7],
+        # # "body": [9],
+        # "supplements": [10],
+        # "mindfulness": [13],
+        # "safety": [15],
+        # "close_environment": [17],
     }
-
+    if test_name not in test_schedule:
+        return True
     return days_passed in test_schedule.get(test_name, [])
 
 
@@ -53,5 +54,6 @@ async def is_task_day_allowed(task_name: str) -> bool:
         # "feet_photo": [8, 22],
         # "eye_photo": [14],
     }
-
+    if task_name not in task_schedule:
+        return True
     return days_passed in task_schedule.get(task_name, [])

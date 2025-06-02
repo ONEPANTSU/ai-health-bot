@@ -21,6 +21,7 @@ from src.bot.keyboards import (
     get_frequency_kb,
 )
 from src.bot.states import DailyQuestionnaire
+from src.bot.utils import send_llm_advice
 from src.db.connection import get_db_connection
 from src.db.patient_repository import save_patient_record
 
@@ -345,4 +346,5 @@ async def process_after_work_feeling(message: Message, state: FSMContext):
         "✅ Анкета успешно сохранена! Спасибо за участие!",
         reply_markup=ReplyKeyboardRemove(),
     )
+    await send_llm_advice(message, data, [])
     await state.clear()

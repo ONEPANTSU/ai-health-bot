@@ -25,7 +25,7 @@ async def run_daily_digest(bot: Bot):
             tz = pytz.timezone(patient.get("timezone", "Europe/Moscow"))
             now = datetime.now(tz)
 
-            if now.hour != 21:
+            if now.hour != 23:
                 return
 
             telegram_id = patient["telegram_id"]
@@ -96,9 +96,9 @@ async def run_weekly_digest(bot: Bot):
 
 
 def setup_llm_scheduler(bot: Bot):
-    scheduler.add_job(
-        run_daily_digest, CronTrigger(minute="0", hour="*"), kwargs={"bot": bot}
-    )
+    # scheduler.add_job(
+    #     run_daily_digest, CronTrigger(minute="0", hour="*"), kwargs={"bot": bot}
+    # )
     scheduler.add_job(
         run_weekly_digest, CronTrigger(minute="0", hour="*"), kwargs={"bot": bot}
     )

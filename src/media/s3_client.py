@@ -1,3 +1,5 @@
+import base64
+import mimetypes
 import os
 import datetime
 from typing import Union
@@ -37,7 +39,7 @@ class S3Client:
                 data = await f.read()
                 await client.put_object(Bucket=self.bucket_name, Key=s3_key, Body=data)
 
-        return f"{self.endpoint_url}/{self.bucket_name}/{s3_key}"
+        return s3_key
 
     async def download_file(self, s3_key: str, local_path: str):
         async with self.session.create_client(
@@ -81,3 +83,30 @@ class S3Client:
             data = await response["Body"].read()
             filename = s3_key.split("/")[-1]
             return BufferedInputFile(data, filename=filename)
+
+    async def generate_presigned_url(self, s3_key: str, expires_in: int = 3600) -> str:
+        async with self.session.create_client(
+            "s3",
+            endpoint_url=self.endpoint_url,
+            aws_access_key_id=self.access_key,
+            aws_secret_access_key=self.secret_key,
+        ) as client:
+            url = await client.generate_presigned_url(
+                ClientMethod="get_object",
+                Params={"Bucket": self.bucket_name, "Key": s3_key},
+                ExpiresIn=expires_in,
+            )
+            return url
+    
+    async def get_base64_image(self, s3_key: str) -> str:
+        async with self.session.create_client(
+            "s3",
+            endpoint_url=self.endpoint_url,
+            aws_access_key_id=self.access_key,
+            aws_secret_access_key=self.secret_key,
+        ) as client:
+            response = await client.get_object(Bucket=self.bucket_name, Key=s3_key)
+            data = await response["Body"].read()
+            mime_type, _ = mimetypes.guess_type(s3_key)
+            base64_data = base64.b64encode(data).decode("utf-8")
+            return f"data:{mime_type};base64,{base64_data}"

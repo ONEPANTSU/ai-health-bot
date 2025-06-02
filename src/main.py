@@ -32,7 +32,6 @@ from src.bot.handlers.tasks.eye_photo import router as eye_photo_router
 from src.bot.handlers.tasks.plank_video import router as plank_video_router
 from src.bot.handlers.timezone import router as timezone_router
 from src.bot.handlers.testing import router as testing_router
-
 from src.llm.scheduler import setup_llm_scheduler
 import logging
 
@@ -44,8 +43,7 @@ logging.basicConfig(
 
 async def main():
     bot = Bot(
-        token=str(config.BOT_TOKEN),
-        default=DefaultBotProperties(parse_mode=ParseMode.HTML),
+        token=config.BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML)
     )
     commands = [
         BotCommand(command="start", description="Начать общение с ботом (Регистрация)"),
