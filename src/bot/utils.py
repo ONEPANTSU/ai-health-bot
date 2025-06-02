@@ -4,9 +4,7 @@ from aiogram.types import ReplyKeyboardRemove
 from src.llm.service import dispatch_to_llm
 
 
-async def send_llm_advice(
-    message: str, data: dict, media_urls: list[str] = None
-):
+async def send_llm_advice(message: str, data: dict, media_urls: list[str] = None):
     if not media_urls:
         media_urls = []
     try:
@@ -16,7 +14,7 @@ async def send_llm_advice(
             current_record=data,
             media_urls=media_urls,
         )
-        
+
         await message.answer(
             llm_resp,
             reply_markup=ReplyKeyboardRemove(),

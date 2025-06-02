@@ -97,7 +97,7 @@ class S3Client:
                 ExpiresIn=expires_in,
             )
             return url
-    
+
     async def get_base64_image(self, s3_key: str) -> str:
         async with self.session.create_client(
             "s3",

@@ -1,10 +1,7 @@
 import asyncio
-from aiogram import Bot, Dispatcher
+from aiogram import Dispatcher
 
-import src.config as config
 
-from aiogram.client.default import DefaultBotProperties
-from aiogram.enums import ParseMode
 from aiogram.types import BotCommand
 from src.bot.scheduler import setup_scheduler
 from src.bot.handlers.greeting_quiz import router as greeting_router
@@ -32,6 +29,7 @@ from src.bot.handlers.tasks.eye_photo import router as eye_photo_router
 from src.bot.handlers.tasks.plank_video import router as plank_video_router
 from src.bot.handlers.timezone import router as timezone_router
 from src.bot.handlers.testing import router as testing_router
+from src.bot_instance import bot
 from src.llm.scheduler import setup_llm_scheduler
 import logging
 
@@ -42,11 +40,9 @@ logging.basicConfig(
 
 
 async def main():
-    bot = Bot(
-        token=config.BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML)
-    )
     commands = [
         BotCommand(command="start", description="Начать общение с ботом (Регистрация)"),
+        BotCommand(command="set_timezone", description="Установить часовой пояс"),
         BotCommand(command="greeting", description="Начать анкету приветствия"),
         BotCommand(command="daily", description="Начать ежедневную анкету"),
         BotCommand(command="mindfulness", description="Начать анкету осознанности"),

@@ -7,9 +7,11 @@ from aiogram.filters import Command
 
 from src.bot.is_test_allowed import is_task_day_allowed
 from src.bot.states import WalkingVideoStates
+from src.bot.utils import send_llm_advice
 from src.db.connection import get_db_connection
 from src.db.patient_repository import save_patient_record
 from src.media.s3_client import S3Client
+from src.media.video_processor import extract_contact_sheet_and_upload
 
 router = Router()
 s3_client = S3Client()
@@ -79,10 +81,14 @@ async def handle_walking_video(message: Message, state: FSMContext):
 
         await message.bot.download_file(file.file_path, destination=str(video_path))
 
-        s3_url = await s3_client.upload_file(
+        video_name = "walking.mp4"
+        video_key = await s3_client.upload_file(
             file_path=str(video_path),
             username=username,
-            filename="walking.mp4",
+            filename=video_name,
+        )
+        contact_photo_key = await extract_contact_sheet_and_upload(
+            video_path, video_name, username
         )
 
         conn = await get_db_connection()
@@ -95,12 +101,13 @@ async def handle_walking_video(message: Message, state: FSMContext):
             telegram_id=user_id,
             answers=json.dumps(answers, ensure_ascii=False),
             gpt_response="",
-            s3_links=[s3_url],
+            s3_links=[video_key, contact_photo_key],
             summary="Ходьба",
             is_daily=False,
         )
 
         await message.answer("✅ Видео ходьбы сохранено для анализа")
+        await send_llm_advice(message, {}, [contact_photo_key])
         await state.clear()
 
     except Exception as e:

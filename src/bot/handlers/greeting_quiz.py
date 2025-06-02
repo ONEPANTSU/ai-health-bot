@@ -8,7 +8,6 @@ from aiogram.types import ReplyKeyboardRemove
 
 from src.bot.is_test_allowed import is_test_day_allowed
 from src.bot.keyboards import get_gender_keyboard
-from src.bot.scheduler import get_user_timezone
 from src.bot.states import GreetingQuestionnaire
 from src.bot.utils import send_llm_advice
 from src.db.connection import get_db_connection
@@ -46,15 +45,11 @@ async def save_greeting_data(telegram_id: int, data: dict):
 async def handle_start(msg: Message, bot: Bot):
     conn = await get_db_connection()
 
-    # Пытаемся автоматически определить часовой пояс
-    tz = await get_user_timezone(bot, msg.from_user.id)
-
     await create_patient(
         conn,
         telegram_id=msg.from_user.id,
         username=msg.from_user.username,
         full_name=msg.from_user.full_name,
-        timezone=tz,
     )
 
     await msg.answer("👋 Вы зарегистрированы!")

@@ -78,7 +78,9 @@ async def handle_balance_video(message: Message, state: FSMContext):
             username=username,
             filename=video_name,
         )
-        contact_photo_key = await extract_contact_sheet_and_upload(video_path, video_name, username)
+        contact_photo_key = await extract_contact_sheet_and_upload(
+            video_path, video_name, username
+        )
 
         conn = await get_db_connection()
         answers = {
