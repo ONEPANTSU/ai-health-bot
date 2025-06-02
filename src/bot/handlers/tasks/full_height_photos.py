@@ -28,6 +28,7 @@ pending_fullbody_groups = defaultdict(list)
 
 @router.message(Command("full_body"))
 async def send_fullbody_instructions(message: Message, state: FSMContext):
+    await state.clear()
     if not await is_task_day_allowed("fullbody_photo"):
         await message.answer(
             '⏳ Задание "Фото в полный рост" не предназначено для прохождения сегодня'

@@ -25,6 +25,7 @@ example_video_path = current_dir / "examples" / "running_video.MOV"
 # Хэндлер для отправки примера видео бега
 @router.message(Command("running"))
 async def send_running_example(message: Message, state: FSMContext):
+    await state.clear()
     if not await is_task_day_allowed("running"):
         await message.answer(
             '⏳ Задание "Бег на дистанции 10-15 метров" не предназначено для прохождения сегодня'

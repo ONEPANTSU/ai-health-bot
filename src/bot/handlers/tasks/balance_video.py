@@ -24,6 +24,7 @@ temp_dir.mkdir(exist_ok=True)
 
 @router.message(Command("balance"))
 async def send_balance_instructions(message: Message, state: FSMContext):
+    await state.clear()
     if not await is_task_day_allowed("balance"):
         await message.answer(
             '⏳ Задание "Тест на баланс" не предназначено для прохождения сегодня'

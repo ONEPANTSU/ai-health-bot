@@ -27,6 +27,7 @@ temp_dir.mkdir(exist_ok=True)
 
 @router.message(Command("picking_up"))
 async def send_pickup_instructions(message: Message, state: FSMContext):
+    await state.clear()
     if not await is_task_day_allowed("pickup_object"):
         await message.answer(
             '⏳ Задание "Подъем с пола" не предназначено для прохождения сегодня'

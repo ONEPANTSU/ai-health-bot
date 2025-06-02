@@ -30,6 +30,7 @@ pending_media_groups = defaultdict(list)
 
 @router.message(Command("face"))
 async def send_face_instructions(message: Message, state: FSMContext):
+    await state.clear()
     if not await is_task_day_allowed("face_photo"):
         await message.answer(
             '⏳ Задание "Фото лица" не предназначено для прохождения сегодня'
