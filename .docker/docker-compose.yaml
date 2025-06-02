@@ -1,4 +1,5 @@
-name: ai_health
+version: "3.8"
+
 services:
   app:
     build:
@@ -13,7 +14,6 @@ services:
     networks:
       - ai-health
 
-  
   migrations:
     build:
       context: ..
@@ -47,8 +47,6 @@ services:
 
 volumes:
   db-data:
-    driver: local
 
 networks:
   ai-health:
-    driver: bridge
