@@ -31,6 +31,7 @@ pending_hands_groups = defaultdict(list)
 
 @router.message(Command("hands"))
 async def send_hands_instructions(message: Message, state: FSMContext):
+    await state.clear()
     if not await is_task_day_allowed("hands_photo"):
         await message.answer(
             '⏳ Задание "Фото рук" не предназначено для прохождения сегодня'

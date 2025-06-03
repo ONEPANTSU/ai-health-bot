@@ -27,6 +27,7 @@ pending_feet_groups = defaultdict(list)
 
 @router.message(Command("feet"))
 async def send_feet_instructions(message: Message, state: FSMContext):
+    await state.clear()
     if not await is_task_day_allowed("feet_photo"):
         await message.answer(
             '⏳ Задание "Фото стоп" не предназначено для прохождения сегодня'

@@ -26,6 +26,7 @@ temp_dir.mkdir(exist_ok=True)
 
 @router.message(Command("squats"))
 async def send_squats_instructions(message: Message, state: FSMContext):
+    await state.clear()
     if not await is_task_day_allowed("squats"):
         await message.answer(
             '⏳ Задание "10 приседаний" не предназначено для прохождения сегодня'

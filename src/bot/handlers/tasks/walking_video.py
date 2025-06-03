@@ -26,6 +26,7 @@ temp_dir.mkdir(exist_ok=True)
 
 @router.message(Command("walking"))
 async def send_walking_instructions(message: Message, state: FSMContext):
+    await state.clear()
     if not await is_task_day_allowed("walking"):
         await message.answer(
             '⏳ Задание "Ходьба" не предназначено для прохождения сегодня'

@@ -28,6 +28,7 @@ temp_dir.mkdir(exist_ok=True)
 
 @router.message(Command("plank"))
 async def send_plank_instructions(message: Message, state: FSMContext):
+    await state.clear()
     if not await is_task_day_allowed("plank"):
         await message.answer(
             '⏳ Задание "Видео в планке" не предназначено для прохождения сегодня'

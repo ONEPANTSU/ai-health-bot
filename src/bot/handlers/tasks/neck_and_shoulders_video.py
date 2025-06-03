@@ -26,6 +26,7 @@ temp_dir.mkdir(exist_ok=True)
 
 @router.message(Command("neck"))
 async def send_neck_instructions(message: Message, state: FSMContext):
+    await state.clear()
     if not await is_task_day_allowed("neck_exercise"):
         await message.answer(
             '⏳ Задание "Повороты головы и круговые движения шеи" не предназначено для прохождения сегодня'
