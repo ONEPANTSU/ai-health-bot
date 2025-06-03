@@ -112,7 +112,7 @@ async def get_all_patients(conn) -> list[dict]:
     """
     rows = await conn.fetch(
         """
-        SELECT telegram_id, username, full_name, timezone, testing_start_date
+        SELECT *
         FROM patients
 
         WHERE is_active = true
