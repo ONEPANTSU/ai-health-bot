@@ -6,6 +6,7 @@ run:
 	uv run -m src.main
 
 docker-run:
+	docker-compose -f .docker/docker-compose.yaml down
 	docker-compose -f .docker/docker-compose.yaml up --build
 
 docker-db:

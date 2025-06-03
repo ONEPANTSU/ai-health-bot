@@ -22,10 +22,6 @@ llm = ChatOpenAI(
     openai_api_key=config.OPENAI_API_KEY,
     temperature=0.2,
     max_tokens=2048,
-    proxies={
-        "http": "http://127.0.0.1:7890",
-        "https": "http://127.0.0.1:7890"
-    }
 )
 
 
