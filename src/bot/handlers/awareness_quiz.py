@@ -46,17 +46,8 @@ async def finish_questionnaire(message: Message, state: FSMContext, data: dict):
 
     # Формируем отчет для пользователя
     report = (
-        f"✅ Анкета сохранена!\n\n1. Практика медитации: {answers['has_practice']}\n"
+        "✅ Анкета сохранена!"
     )
-
-    if answers["has_practice"] == "Да":
-        report += (
-            f"2. Частота практики: {answers['practice_frequency']}\n"
-            f"3. Объект концентрации: {answers['focus_object']}\n"
-            f"4. Сложность концентрации: {answers['concentration_difficulty']}\n"
-            f"5. Положительные изменения: {answers['positive_changes']}\n"
-        )
-
     await message.answer(
         report,
         reply_markup=ReplyKeyboardRemove(),
