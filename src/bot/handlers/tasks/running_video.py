@@ -91,7 +91,9 @@ async def handle_running_video(message: Message, state: FSMContext):
             is_daily=False,
         )
         await message.answer("✅ Ваше видео с бегом успешно сохранено!\n")
-        await send_llm_advice(message, {"prompt_type": "video_analysis"}, [contact_photo_key])
+        await send_llm_advice(
+            message, {"prompt_type": "video_analysis"}, [contact_photo_key]
+        )
         await state.clear()
 
     except Exception as e:
@@ -105,7 +107,9 @@ async def handle_running_video(message: Message, state: FSMContext):
             video_path.unlink()
 
 
-@router.message(F.content_type == ContentType.DOCUMENT, RunningVideoStates.waiting_running_video)
+@router.message(
+    F.content_type == ContentType.DOCUMENT, RunningVideoStates.waiting_running_video
+)
 async def handle_running_video_as_doc(message: Message):
     if message.document.mime_type and message.document.mime_type.startswith("video/"):
         await handle_running_video(message)

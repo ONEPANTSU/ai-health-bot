@@ -60,7 +60,9 @@ async def handle_feet_photo(message: Message, state: FSMContext):
         pending_feet_groups[message.media_group_id].append(message)
 
         if len(pending_feet_groups[message.media_group_id]) == 1:
-            asyncio.create_task(process_feet_group(message, message.media_group_id, state))
+            asyncio.create_task(
+                process_feet_group(message, message.media_group_id, state)
+            )
         return
 
     # Обработка одиночного фото

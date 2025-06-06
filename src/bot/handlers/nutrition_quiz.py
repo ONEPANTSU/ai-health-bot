@@ -135,9 +135,7 @@ async def process_water(message: Message, state: FSMContext):
     data["water"] = float(message.text)
     await save_nutrition_data(message.from_user.id, data)
 
-    summary = (
-        "✅ Анкета питания сохранена\n\n"
-    )
+    summary = "✅ Анкета питания сохранена\n\n"
 
     await message.answer(
         summary,

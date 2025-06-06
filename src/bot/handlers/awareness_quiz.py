@@ -45,9 +45,7 @@ async def finish_questionnaire(message: Message, state: FSMContext, data: dict):
     )
 
     # Формируем отчет для пользователя
-    report = (
-        "✅ Анкета сохранена!"
-    )
+    report = "✅ Анкета сохранена!"
     await message.answer(
         report,
         reply_markup=ReplyKeyboardRemove(),
@@ -99,7 +97,7 @@ async def process_practice_frequency(message: Message, state: FSMContext):
 
     await state.update_data(practice_frequency=message.text)
     await message.answer(
-        "3. На чем Вы сосредотачиваетесь во время практики: " \
+        "3. На чем Вы сосредотачиваетесь во время практики: "
         "Дыхание, Телесные ощущения, Мантры/звуки, Визуальные образы, Эмоции? "
         "(Перечислите через запятую)",
         reply_markup=ReplyKeyboardRemove(),

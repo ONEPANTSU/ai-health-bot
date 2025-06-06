@@ -90,9 +90,7 @@ async def finish_supplements_questionnaire(message: Message, state: FSMContext):
     data["questionnaire_type"] = q_type
     await save_supplements_data(message.from_user.id, data)
 
-    summary = (
-        "✅ Данные о приеме БАДов/витаминов сохранены"
-    )
+    summary = "✅ Данные о приеме БАДов/витаминов сохранены"
 
     if data["taking_supplements"] == "Да":
         summary += f"\nПрепараты: {data['supplements_details']}"

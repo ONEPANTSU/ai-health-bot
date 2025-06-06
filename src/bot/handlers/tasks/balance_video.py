@@ -100,10 +100,10 @@ async def handle_balance_video(message: Message, state: FSMContext):
             is_daily=False,
         )
 
-        await message.answer(
-            "✅ Видео теста на баланс сохранено"
+        await message.answer("✅ Видео теста на баланс сохранено")
+        await send_llm_advice(
+            message, {"prompt_type": "balance_tests"}, [contact_photo_key]
         )
-        await send_llm_advice(message, {"prompt_type": "balance_tests"}, [contact_photo_key])
         await state.clear()
 
     except Exception as e:

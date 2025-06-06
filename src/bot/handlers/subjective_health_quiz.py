@@ -154,9 +154,7 @@ async def finish_health_questionnaire(message: Message, state: FSMContext):
 
     await save_health_data(message.from_user.id, data)
 
-    summary = (
-        "✅ Анкета состояния здоровья сохранена\n\n"
-    )
+    summary = "✅ Анкета состояния здоровья сохранена\n\n"
 
     await message.answer(
         summary,

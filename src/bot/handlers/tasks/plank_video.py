@@ -92,7 +92,9 @@ async def handle_plank_video(message: Message, state: FSMContext):
         )
 
         await message.answer("✅ Видео планки получено")
-        await send_llm_advice(message, {"prompt_type": "video_analysis"}, [contact_photo_key])
+        await send_llm_advice(
+            message, {"prompt_type": "video_analysis"}, [contact_photo_key]
+        )
         await state.clear()
 
     except Exception as e:

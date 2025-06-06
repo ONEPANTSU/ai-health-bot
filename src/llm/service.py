@@ -128,7 +128,7 @@ async def dispatch_to_llm(
     )
 
     readable_text = convert_json_to_readable_text(current_record)
-    history_blocks = [] # await build_history_blocks(telegram_id)
+    history_blocks = []  # await build_history_blocks(telegram_id)
 
     prompt = (
         (

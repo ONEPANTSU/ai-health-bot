@@ -104,7 +104,9 @@ async def handle_pickup_video(message: Message, state: FSMContext):
         )
 
         await message.answer("✅ Видео подъема предмета сохранено для анализа")
-        await send_llm_advice(message, {"prompt_type": "video_analysis"}, [contact_photo_key])
+        await send_llm_advice(
+            message, {"prompt_type": "video_analysis"}, [contact_photo_key]
+        )
         await state.clear()
 
     except Exception as e:

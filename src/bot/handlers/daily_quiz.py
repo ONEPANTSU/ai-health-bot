@@ -332,11 +332,9 @@ async def process_after_work_feeling(message: Message, state: FSMContext):
                 [KeyboardButton(text="Нет")],
             ],
             resize_keyboard=True,
-        )
-,
+        ),
     )
     await state.set_state(DailyQuestionnaire.ALCOHOL)
-
 
 
 @router.message(DailyQuestionnaire.ALCOHOL)
@@ -352,9 +350,10 @@ async def process_alcohol(message: Message, state: FSMContext):
                 [KeyboardButton(text="5 и более чашек")],
             ],
             resize_keyboard=True,
-        )
+        ),
     )
     await state.set_state(DailyQuestionnaire.COFFEE)
+
 
 @router.message(DailyQuestionnaire.COFFEE)
 async def process_tea_coffee(message: Message, state: FSMContext):
@@ -369,7 +368,7 @@ async def process_tea_coffee(message: Message, state: FSMContext):
                 [KeyboardButton(text="Более 3 литров")],
             ],
             resize_keyboard=True,
-        )
+        ),
     )
     await state.set_state(DailyQuestionnaire.WATER)
 
@@ -400,4 +399,3 @@ async def ask_water(message: Message, state: FSMContext):
     )
     await send_llm_advice(message, data, [])
     await state.clear()
-

@@ -105,9 +105,7 @@ async def process_communication_frequency(message: Message, state: FSMContext):
     await save_close_circle_data(message.from_user.id, data)
 
     # Формируем отчет
-    report = (
-        "✅ Анкета сохранена!\n\n"
-    )
+    report = "✅ Анкета сохранена!\n\n"
 
     await message.answer(
         report,

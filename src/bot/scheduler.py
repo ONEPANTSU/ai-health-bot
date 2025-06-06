@@ -330,6 +330,83 @@ async def check_and_send_questionnaires(
                         "👁️ Пожалуйста, выполните задание 'Микрофото глаза': /eye",
                         "/eye",
                     )
+                if day_of_program in [1, 30] and (
+                    current_hour == 20 and current_minute == 0
+                ):
+                    await send_questionnaire_to_user(
+                        bot,
+                        telegram_id,
+                        "⌚ Пожалуйста, выполните задание 'Данные с носимого устройства': /wearable_data",
+                        "/wearable_data",
+                    )
+
+                if day_of_program == 2 and (current_hour == 19 and current_minute == 0):
+                    await send_questionnaire_to_user(
+                        bot,
+                        telegram_id,
+                        "📱 Пожалуйста, выполните задание 'Рассказ о себе': /speech",
+                        "/speech",
+                    )
+                if day_of_program == 3 and (current_hour == 19 and current_minute == 0):
+                    await send_questionnaire_to_user(
+                        bot,
+                        telegram_id,
+                        "🧑‍⚕️ Пожалуйста, выполните задание 'Обследования за 3 месяца': /checkups",
+                        "/checkups",
+                    )
+                if day_of_program == 4 and (current_hour == 12 and current_minute == 0):
+                    await send_questionnaire_to_user(
+                        bot,
+                        telegram_id,
+                        "🩸️ Пожалуйста, выполните задание 'Сдача анализов крови': /blood",
+                        "/blood",
+                    )
+                if day_of_program in [7, 14, 21, 28] and (
+                    current_hour == 9 and current_minute == 0
+                ):
+                    await send_questionnaire_to_user(
+                        bot,
+                        telegram_id,
+                        "️❤️ Пожалуйста, выполните задание 'Измерения давления и пульса': /pressure",
+                        "/pressure",
+                    )
+                if day_of_program == 13 and (
+                    current_hour == 19 and current_minute == 0
+                ):
+                    await send_questionnaire_to_user(
+                        bot,
+                        telegram_id,
+                        "🫁 Пожалуйста, выполните задание 'Дыхание после нагрузки': /breathing",
+                        "/breathing",
+                    )
+
+                if day_of_program == 24 and (
+                    current_hour == 19 and current_minute == 0
+                ):
+                    await send_questionnaire_to_user(
+                        bot,
+                        telegram_id,
+                        "🫁 Пожалуйста, выполните задание 'Дыхание в покое': /rest_breathing",
+                        "/rest_breathing",
+                    )
+                if day_of_program == 25 and (
+                    current_hour == 9 and current_minute == 30
+                ):
+                    await send_questionnaire_to_user(
+                        bot,
+                        telegram_id,
+                        "👅 Пожалуйста, выполните задание 'Фото языка утром': /tongue",
+                        "/tongue",
+                    )
+                if day_of_program == 26 and (
+                    current_hour == 19 and current_minute == 0
+                ):
+                    await send_questionnaire_to_user(
+                        bot,
+                        telegram_id,
+                        "😁 Пожалуйста, выполните задание 'Запись смеха/улыбки': /laughter",
+                        "/laughter",
+                    )
 
             except Exception as e:
                 logger.error(

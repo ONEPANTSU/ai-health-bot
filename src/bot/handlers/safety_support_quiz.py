@@ -113,9 +113,7 @@ async def process_feels_safe(message: Message, state: FSMContext):
         await conn.close()
 
     # Формируем отчет
-    report = (
-        "✅ Анкета сохранена"
-    )
+    report = "✅ Анкета сохранена"
 
     await message.answer(
         report,

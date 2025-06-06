@@ -99,7 +99,9 @@ async def handle_squats_video(message: Message, state: FSMContext):
         )
 
         await message.answer("✅ Видео приседаний сохранено для анализа")
-        await send_llm_advice(message, {"prompt_type": "video_analysis"}, [contact_photo_key])
+        await send_llm_advice(
+            message, {"prompt_type": "video_analysis"}, [contact_photo_key]
+        )
         await state.clear()
 
     except Exception as e:
@@ -110,7 +112,9 @@ async def handle_squats_video(message: Message, state: FSMContext):
             video_path.unlink()
 
 
-@router.message(F.content_type == ContentType.VIDEO_NOTE, SquatsVideoStates.waiting_squats_video)
+@router.message(
+    F.content_type == ContentType.VIDEO_NOTE, SquatsVideoStates.waiting_squats_video
+)
 async def handle_video_note(message: Message):
     await message.answer(
         "Пожалуйста, отправьте видео в обычном формате, а не как видео-сообщение (кружок)"

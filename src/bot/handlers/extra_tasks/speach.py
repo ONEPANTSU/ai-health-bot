@@ -6,7 +6,7 @@ from aiogram import Router, F
 from aiogram.types import Message, ContentType
 from aiogram.filters import Command
 
-from src.bot.states import SpeachVideoStates
+from src.bot.states import SpeechVideoStates
 from src.bot.utils import send_llm_advice
 from src.db.connection import get_db_connection
 from src.db.patient_repository import save_patient_record
@@ -19,23 +19,22 @@ s3_client = S3Client()
 # Получаем абсолютный путь к примеру видео
 current_dir = Path(__file__).parent
 
-# Хэндлер для отправки примера видео бега
-@router.message(Command("speach"))
-async def send_speach_task(message: Message, state: FSMContext):
+
+# Хэндлер для отправки примера видео речи
+@router.message(Command("speech"))
+async def send_speech_task(message: Message, state: FSMContext):
     await state.clear()
-    
-    await state.set_state(SpeachVideoStates.waiting_video)
+
+    await state.set_state(SpeechVideoStates.waiting_video)
 
     await message.answer(
-            text="Пришлите Видео речи (1 мин) - РАССКАЗ О СЕБЕ",
-            parse_mode="HTML",
-        )
+        text="Пришлите Видео речи (1 мин) - РАССКАЗ О СЕБЕ",
+        parse_mode="HTML",
+    )
 
 
-@router.message(
-    F.content_type == ContentType.VIDEO, SpeachVideoStates.waiting_video
-)
-async def handle_speach_video(message: Message, state: FSMContext):
+@router.message(F.content_type == ContentType.VIDEO, SpeechVideoStates.waiting_video)
+async def handle_speech_video(message: Message, state: FSMContext):
     user_id = message.from_user.id
     username = message.from_user.username or f"user_{user_id}"
     temp_dir = current_dir / "temp"
@@ -47,7 +46,7 @@ async def handle_speach_video(message: Message, state: FSMContext):
 
         await message.bot.download_file(video_file.file_path, destination=video_path)
 
-        video_name = "speach.mp4"
+        video_name = "speech.mp4"
         video_key = await s3_client.upload_file(
             file_path=str(video_path),
             username=username,
@@ -59,7 +58,7 @@ async def handle_speach_video(message: Message, state: FSMContext):
 
         conn = await get_db_connection()
         answers = {
-            "questionnaire_type": "speach",
+            "questionnaire_type": "speech",
             "prompt_type": "video_analysis",
         }
         await save_patient_record(
@@ -71,8 +70,10 @@ async def handle_speach_video(message: Message, state: FSMContext):
             summary="Бег",
             is_daily=False,
         )
-        await message.answer("✅ Ваше видео с бегом успешно сохранено!\n")
-        await send_llm_advice(message, {"prompt_type": "video_analysis"}, [contact_photo_key])
+        await message.answer("✅ Ваше видео речи успешно сохранено!\n")
+        await send_llm_advice(
+            message, {"prompt_type": "video_analysis"}, [contact_photo_key]
+        )
         await state.clear()
 
     except Exception as e:
@@ -86,7 +87,7 @@ async def handle_speach_video(message: Message, state: FSMContext):
             video_path.unlink()
 
 
-@router.message(F.content_type == ContentType.DOCUMENT, SpeachVideoStates.waiting_video)
+@router.message(F.content_type == ContentType.DOCUMENT, SpeechVideoStates.waiting_video)
 async def handle_speach_video_as_doc(message: Message):
     if message.document.mime_type and message.document.mime_type.startswith("video/"):
-        await handle_speach_video(message)
+        await handle_speech_video(message)

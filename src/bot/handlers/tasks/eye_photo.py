@@ -91,9 +91,7 @@ async def handle_eye_photo(message: Message, state: FSMContext):
             is_daily=False,
         )
 
-        await message.answer(
-            "✅ Макрофото глаза сохранено"
-        )
+        await message.answer("✅ Макрофото глаза сохранено")
         await send_llm_advice(message, {"prompt_type": "photo_analysis"}, [s3_key])
         await state.clear()
 

@@ -14,6 +14,7 @@ from src.db.patient_repository import save_patient_record
 
 router = Router()
 
+
 @router.message(Command("wearable_data"))
 async def start_device_data(message: Message, state: FSMContext):
     await state.clear()
@@ -21,18 +22,17 @@ async def start_device_data(message: Message, state: FSMContext):
     await message.answer(
         "Пришлите данные с носимого устройства за последний месяц в свободной текстовой форме.",
         reply_markup=ReplyKeyboardMarkup(
-        keyboard=[
-            [KeyboardButton(text="Нет")],
-        ],
-        resize_keyboard=True,
-    ),
+            keyboard=[
+                [KeyboardButton(text="Нет")],
+            ],
+            resize_keyboard=True,
+        ),
     )
     await state.set_state(MindfulnessQuestionnaire.HAS_PRACTICE)
 
 
 @router.message(DeviceData.PROCESSING)
 async def process_device_data(message: Message, state: FSMContext):
-
     conn = await get_db_connection()
     q_type = "device"
 
@@ -53,9 +53,7 @@ async def process_device_data(message: Message, state: FSMContext):
     )
 
     # Формируем отчет для пользователя
-    report = (
-        "✅ Анкета сохранена!"
-    )
+    report = "✅ Анкета сохранена!"
     await message.answer(
         report,
         reply_markup=ReplyKeyboardRemove(),

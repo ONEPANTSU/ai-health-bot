@@ -3,6 +3,7 @@ from aiogram import Dispatcher
 
 
 from aiogram.types import BotCommand
+
 from src.bot.scheduler import setup_scheduler
 from src.bot.handlers.greeting_quiz import router as greeting_router
 from src.bot.handlers.daily_quiz import router as daily_router
@@ -29,6 +30,22 @@ from src.bot.handlers.tasks.eye_photo import router as eye_photo_router
 from src.bot.handlers.tasks.plank_video import router as plank_video_router
 from src.bot.handlers.timezone import router as timezone_router
 from src.bot.handlers.testing import router as testing_router
+from src.bot.handlers.extra_tasks.speach import router as speach_router
+from src.bot.handlers.extra_tasks.checkups import router as checkup_router
+from src.bot.handlers.extra_tasks.device import router as device_router
+from src.bot.handlers.extra_tasks.pressure_and_pulse import (
+    router as pressure_and_pulse_router,
+)
+from src.bot.handlers.extra_tasks.breathing_after_exercise import (
+    router as breathing_after_exercise_router,
+)
+from src.bot.handlers.extra_tasks.tongue import router as tongue_router
+from src.bot.handlers.extra_tasks.breathing_at_rest import (
+    router as breathing_at_rest_router,
+)
+from src.bot.handlers.extra_tasks.smile_laugh import router as smile_laugh_router
+from src.bot.handlers.extra_tasks.blood_tests import router as blood_test_router
+
 from src.bot_instance import bot
 from src.llm.scheduler import setup_llm_scheduler
 import logging
@@ -77,9 +94,20 @@ async def main():
         BotCommand(command="running", description="Начать задание 'Бег'"),
         BotCommand(command="squats", description="Начать задание 'Приседания'"),
         BotCommand(command="walking", description="Начать задание 'Хождение'"),
-
-        BotCommand(command="wearable_data", description="Заполнить данные с носимого устройства"),
+        BotCommand(
+            command="wearable_data",
+            description="Заполнить данные с носимого устройства",
+        ),
         BotCommand(command="speach", description="Видео речи"),
+        BotCommand(command="checkups", description="Документы обследований"),
+        BotCommand(command="pressure", description="Измерения давления и пульса"),
+        BotCommand(command="breathing", description="Дыхание после легкой нагрузки"),
+        BotCommand(
+            command="rest_breathing", description="Дыхание в спокойном состоянии"
+        ),
+        BotCommand(command="tongue", description="Фото языка"),
+        BotCommand(command="laughter", description="Видео улыбки/смеха"),
+        BotCommand(command="blood", description="Сдача анализов крови"),
     ]
     await bot.set_my_commands(commands)
 
@@ -110,6 +138,15 @@ async def main():
     dp.include_router(plank_video_router)
     dp.include_router(timezone_router)
     dp.include_router(testing_router)
+    dp.include_router(speach_router)
+    dp.include_router(checkup_router)
+    dp.include_router(device_router)
+    dp.include_router(pressure_and_pulse_router)
+    dp.include_router(breathing_after_exercise_router)
+    dp.include_router(breathing_at_rest_router)
+    dp.include_router(smile_laugh_router)
+    dp.include_router(tongue_router)
+    dp.include_router(blood_test_router)
 
     print("🤖 Бот запущен...")
     await dp.start_polling(bot)

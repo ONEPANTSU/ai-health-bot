@@ -140,8 +140,34 @@ class TimezoneStates(StatesGroup):
 class TestingStates(StatesGroup):
     testing_started = State()
 
+
 class DeviceData(StatesGroup):
     PROCESSING = State()
 
-class SpeachVideoStates(StatesGroup):
+
+class SpeechVideoStates(StatesGroup):
     waiting_video = State()
+
+
+class ExaminationStates(StatesGroup):
+    waiting_examination_files = State()
+
+
+class PressurePulseStates(StatesGroup):
+    waiting_pressure_pulse = State()
+
+
+class BreathingTestStates(StatesGroup):
+    waiting_breathing_video = State()
+
+
+class RestBreathingStates(StatesGroup):
+    waiting_rest_breathing_video = State()
+
+
+class TonguePhotoStates(StatesGroup):
+    waiting_tongue_photo = State()
+
+
+class LaughterVideoStates(StatesGroup):
+    waiting_laughter_video = State()
