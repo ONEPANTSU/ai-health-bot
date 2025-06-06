@@ -12,7 +12,7 @@ async def create_patient(
     timezone: str = None,
 ):
     # Если часовой пояс не указан, используем UTC
-    tz = timezone if timezone else "UTC"
+    tz = timezone if timezone else "Asia/Dubai"
 
     await conn.execute(
         """

@@ -114,10 +114,7 @@ async def process_feels_safe(message: Message, state: FSMContext):
 
     # Формируем отчет
     report = (
-        "✅ Результаты анкеты:\n\n"
-        f"1. Поддержка окружения: {data['has_support']}\n"
-        f"2. Количество поддерживающих: {data['support_count']}\n"
-        f"3. Чувство безопасности: {data['feels_safe']}"
+        "✅ Анкета сохранена"
     )
 
     await message.answer(

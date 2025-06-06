@@ -3,7 +3,7 @@ from aiogram import Bot
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
-from datetime import datetime, date
+from datetime import datetime
 import logging
 import pytz
 
@@ -86,27 +86,10 @@ async def check_and_send_questionnaires(
                         microsecond=0,
                     )
 
-                user_start_date = patient.get("testing_start_date", global_start_date)
-                if isinstance(user_start_date, str):
-                    try:
-                        user_start_date = datetime.fromisoformat(user_start_date).date()
-                    except ValueError:
-                        logger.warning(
-                            f"Cannot parse testing_start_date={user_start_date} for user {telegram_id}"
-                        )
-                        return
-                elif isinstance(user_start_date, datetime):
-                    user_start_date = user_start_date.date()
-                elif not isinstance(user_start_date, date):
-                    logger.warning(
-                        f"Invalid testing_start_date={user_start_date} type for user {telegram_id}"
-                    )
-                    return
-
-                days_passed = (now.date() - user_start_date).days
+                days_passed = (now.date() - global_start_date).days
 
                 logger.info(
-                    f"User {telegram_id}: start_date={user_start_date}, now={now.date()}, days_passed={days_passed}"
+                    f"User {telegram_id}: start_date={global_start_date}, now={now.date()}, days_passed={days_passed}"
                 )
 
                 day_of_program = (

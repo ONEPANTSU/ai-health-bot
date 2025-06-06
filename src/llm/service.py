@@ -28,7 +28,7 @@ llm = ChatOpenAI(
 def convert_json_to_readable_text(record: dict) -> str:
     q_type = record.get("questionnaire_type")
     if not q_type or q_type not in config.QUESTION_TEXT_MAP:
-        return f"[⚠️ Неизвестный тип анкеты: {q_type}]"
+        return str(record) if record else ""
 
     answers = record.get("answers")
     if not answers:
@@ -128,7 +128,7 @@ async def dispatch_to_llm(
     )
 
     readable_text = convert_json_to_readable_text(current_record)
-    history_blocks = await build_history_blocks(telegram_id)
+    history_blocks = [] # await build_history_blocks(telegram_id)
 
     prompt = (
         (

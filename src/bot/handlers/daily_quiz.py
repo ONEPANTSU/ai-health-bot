@@ -1,5 +1,5 @@
 import json
-
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from aiogram import Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
@@ -325,6 +325,58 @@ async def process_after_work_feeling(message: Message, state: FSMContext):
         return
 
     await state.update_data(after_work_feeling=message.text)
+    await message.answer(
+        "20. Употребляли ли Вы вчера алкоголь? Если да, укажите, количество порций.",
+        reply_markup=ReplyKeyboardMarkup(
+            keyboard=[
+                [KeyboardButton(text="Нет")],
+            ],
+            resize_keyboard=True,
+        )
+,
+    )
+    await state.set_state(DailyQuestionnaire.ALCOHOL)
+
+
+
+@router.message(DailyQuestionnaire.ALCOHOL)
+async def process_alcohol(message: Message, state: FSMContext):
+    await state.update_data(alcohol=message.text)
+    await message.answer(
+        "21. Сколько чашек чая-кофе Вы выпили вчера в течение дня?",
+        reply_markup=ReplyKeyboardMarkup(
+            keyboard=[
+                [KeyboardButton(text="0 чашек")],
+                [KeyboardButton(text="1-2 чашки")],
+                [KeyboardButton(text="3-4 чашки")],
+                [KeyboardButton(text="5 и более чашек")],
+            ],
+            resize_keyboard=True,
+        )
+    )
+    await state.set_state(DailyQuestionnaire.COFFEE)
+
+@router.message(DailyQuestionnaire.COFFEE)
+async def process_tea_coffee(message: Message, state: FSMContext):
+    await state.update_data(tea_coffee=message.text)
+    await message.answer(
+        "22. Сколько литров воды Вы выпили вчера в течение дня?",
+        reply_markup=ReplyKeyboardMarkup(
+            keyboard=[
+                [KeyboardButton(text="Менее литра")],
+                [KeyboardButton(text="От 1 до 2 литров")],
+                [KeyboardButton(text="От 2 до 3 литров")],
+                [KeyboardButton(text="Более 3 литров")],
+            ],
+            resize_keyboard=True,
+        )
+    )
+    await state.set_state(DailyQuestionnaire.WATER)
+
+
+@router.message(DailyQuestionnaire.WATER)
+async def ask_water(message: Message, state: FSMContext):
+    await state.update_data(water=message.text)
     data = await state.get_data()
     q_type = "daily"
     data["questionnaire_type"] = q_type
@@ -348,3 +400,4 @@ async def process_after_work_feeling(message: Message, state: FSMContext):
     )
     await send_llm_advice(message, data, [])
     await state.clear()
+

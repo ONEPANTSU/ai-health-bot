@@ -136,12 +136,7 @@ async def process_water(message: Message, state: FSMContext):
     await save_nutrition_data(message.from_user.id, data)
 
     summary = (
-        "✅ Анкета питания сохранена:\n\n"
-        f"Завтраки за 3 дня:\n{data['breakfast']}\n\n"
-        f"Обеды за 3 дня:\n{data['lunch']}\n\n"
-        f"Ужины за 3 дня:\n{data['dinner']}\n\n"
-        f"Перекусы за 3 дня:\n{data['snacks']}\n\n"
-        f"Вода: {data['water']} л/день"
+        "✅ Анкета питания сохранена\n\n"
     )
 
     await message.answer(

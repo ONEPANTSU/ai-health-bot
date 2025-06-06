@@ -10,7 +10,6 @@ from src.bot.is_test_allowed import is_test_day_allowed
 from src.bot.keyboards import (
     get_yes_no_kb,
     get_frequency_communication_kb,
-    get_focus_kb,
     get_difficulty_kb,
 )
 from src.bot.states import MindfulnessQuestionnaire
@@ -102,15 +101,17 @@ async def process_has_practice(message: Message, state: FSMContext):
 
 @router.message(MindfulnessQuestionnaire.PRACTICE_FREQUENCY)
 async def process_practice_frequency(message: Message, state: FSMContext):
-    valid_answers = ["Ежедневно", "Несколько раз в неделю", "Раз в неделю", "Реже"]
+    valid_answers = ["Каждый день", "Несколько раз в неделю", "Раз в неделю", "Реже"]
     if message.text not in valid_answers:
         await message.answer("Пожалуйста, выберите вариант из клавиатуры")
         return
 
     await state.update_data(practice_frequency=message.text)
     await message.answer(
-        "3. На чем Вы сосредотачиваетесь во время практики?",
-        reply_markup=get_focus_kb(),
+        "3. На чем Вы сосредотачиваетесь во время практики: " \
+        "Дыхание, Телесные ощущения, Мантры/звуки, Визуальные образы, Эмоции? "
+        "(Перечислите через запятую)",
+        reply_markup=ReplyKeyboardRemove(),
     )
     await state.set_state(MindfulnessQuestionnaire.FOCUS_OBJECT)
 

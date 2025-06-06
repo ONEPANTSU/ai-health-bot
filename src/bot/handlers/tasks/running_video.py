@@ -91,7 +91,7 @@ async def handle_running_video(message: Message, state: FSMContext):
             is_daily=False,
         )
         await message.answer("✅ Ваше видео с бегом успешно сохранено!\n")
-        await send_llm_advice(message, {}, [contact_photo_key])
+        await send_llm_advice(message, {"prompt_type": "video_analysis"}, [contact_photo_key])
         await state.clear()
 
     except Exception as e:

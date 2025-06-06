@@ -1,3 +1,4 @@
+from datetime import datetime
 import json
 import os
 from pathlib import Path
@@ -21,3 +22,5 @@ QUESTION_TEXT_MAP = json.loads(Path("question_map.json").read_text(encoding="utf
 ALL_PROMPTS = json.loads(Path("all_prompts.json").read_text(encoding="utf-8"))
 QUESTION_TYPE_PROMPTS = ALL_PROMPTS.get("daily", {})
 WEEKLY_PROMPTS = ALL_PROMPTS.get("weekly", {})
+
+START_TESTING_DATE = datetime(day=1, month=6, year=2025)

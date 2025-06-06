@@ -53,9 +53,6 @@ async def ask_timezone(message: Message, state: FSMContext):
             keyboard.append(row)
             row = []
 
-    # Добавляем кнопку для ручного ввода
-    keyboard.append([KeyboardButton(text="Ввести вручную (например UTC+3)")])
-
     timezone_keyboard = ReplyKeyboardMarkup(
         keyboard=keyboard, resize_keyboard=True, one_time_keyboard=True
     )
@@ -63,7 +60,7 @@ async def ask_timezone(message: Message, state: FSMContext):
     await message.answer(
         "🕒 Пожалуйста, выберите ваш часовой пояс:\n\n"
         "Можете выбрать из списка или ввести вручную в формате:\n"
-        "<code>UTC+3</code> или <code>UTC-5</code>",
+        "<code>UTC+0</code>, <code>UTC+3</code> или <code>UTC-5</code>",
         reply_markup=timezone_keyboard,
         parse_mode="HTML",
     )

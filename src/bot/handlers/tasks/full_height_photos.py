@@ -11,6 +11,7 @@ from aiogram.filters import Command
 
 from src.bot.is_test_allowed import is_task_day_allowed
 from src.bot.states import FullbodyPhotoStates
+from src.bot.utils import send_llm_advice
 from src.db.connection import get_db_connection
 from src.db.patient_repository import save_patient_record
 from src.media.s3_client import S3Client
@@ -100,7 +101,7 @@ async def handle_fullbody_photo(message: Message, state: FSMContext):
                 "user_id": message.from_user.id,
                 "state": state,
             }
-            asyncio.create_task(process_fullbody_group(message.media_group_id))
+            asyncio.create_task(process_fullbody_group(message, message.media_group_id))
 
         pending_fullbody_groups[message.media_group_id]["messages"].append(message)
         return
@@ -109,7 +110,7 @@ async def handle_fullbody_photo(message: Message, state: FSMContext):
     await process_single_fullbody_photo(message, state)
 
 
-async def process_fullbody_group(group_id: str):
+async def process_fullbody_group(message: Message, group_id: str):
     """Обработка группы из 4 фото"""
     await asyncio.sleep(3)  # Ждем все фото группы
 
@@ -173,6 +174,7 @@ async def process_fullbody_group(group_id: str):
         )
 
         await messages[0].answer("✅ Все 4 фотографии сохранены для анализа")
+        await send_llm_advice(message, {"prompt_type": "photo_analysis"}, s3_urls)
         await state.clear()
 
     except Exception as e:

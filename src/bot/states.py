@@ -22,6 +22,9 @@ class DailyQuestionnaire(StatesGroup):
     WORKOUT_PAIN_LOCATION = State()
     FATIGUE_LEVEL = State()
     AFTER_WORK_FEELING = State()
+    ALCOHOL = State()
+    COFFEE = State()
+    WATER = State()
 
 
 class GreetingQuestionnaire(StatesGroup):

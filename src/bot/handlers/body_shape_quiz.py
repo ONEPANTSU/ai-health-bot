@@ -103,10 +103,7 @@ async def process_chest(message: Message, state: FSMContext):
     await save_body_data(message.from_user.id, data)
 
     await message.answer(
-        "✅ Данные телосложения сохранены:\n\n"
-        f"Талия: {data['waist']} см\n"
-        f"Бёдра: {data['hips']} см\n"
-        f"Грудь: {data['chest']} см",
+        "✅ Данные телосложения сохранены\n\n",
         reply_markup=ReplyKeyboardRemove(),
     )
     await send_llm_advice(message, data, [])

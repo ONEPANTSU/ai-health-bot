@@ -95,7 +95,7 @@ async def handle_neck_video(message: Message, state: FSMContext):
             is_daily=False,
         )
         await message.answer("✅ Видео упражнений для шеи сохранено для анализа")
-        await send_llm_advice(message, {}, [contact_photo_key])
+        await send_llm_advice(message, {"prompt_type": "video_analysis"}, [contact_photo_key])
         await state.clear()
 
     except Exception as e:

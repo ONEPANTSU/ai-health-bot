@@ -155,22 +155,8 @@ async def finish_health_questionnaire(message: Message, state: FSMContext):
     await save_health_data(message.from_user.id, data)
 
     summary = (
-        "✅ Анкета состояния здоровья сохранена:\n\n"
-        f"Хронические заболевания: {data['chronic_diseases']}\n"
+        "✅ Анкета состояния здоровья сохранена\n\n"
     )
-
-    if data["chronic_diseases"] == "Да":
-        summary += f"Подробности: {data['diseases_details']}\n"
-
-    summary += f"Приём лекарств: {data['medication']}\n"
-
-    if data["medication"] == "Да":
-        summary += f"Какие: {data['medication_details']}\n"
-
-    summary += f"Постоянные боли: {data['chronic_pain']}\n"
-
-    if data["chronic_pain"] == "Да":
-        summary += f"Локализация: {data['pain_details']}"
 
     await message.answer(
         summary,

@@ -107,9 +107,6 @@ async def process_communication_frequency(message: Message, state: FSMContext):
     # Формируем отчет
     report = (
         "✅ Анкета сохранена!\n\n"
-        f"Близкое окружение: {data['relationships']}\n"
-        f"Оценка отношений: {data['relationship_quality']}/10\n"
-        f"Частота общения: {data['communication_frequency']}"
     )
 
     await message.answer(

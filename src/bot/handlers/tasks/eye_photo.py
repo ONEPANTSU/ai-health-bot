@@ -92,13 +92,9 @@ async def handle_eye_photo(message: Message, state: FSMContext):
         )
 
         await message.answer(
-            "✅ Макрофото глаза сохранено\n\n"
-            "Фото будет проанализировано на:\n"
-            "- Состояние сосудов\n"
-            "- Четкость радужной оболочки\n"
-            "- Наличие покраснений"
+            "✅ Макрофото глаза сохранено"
         )
-        await send_llm_advice(message, {}, [s3_key])
+        await send_llm_advice(message, {"prompt_type": "photo_analysis"}, [s3_key])
         await state.clear()
 
     except Exception as e:

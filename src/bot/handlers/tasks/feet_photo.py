@@ -9,6 +9,7 @@ from aiogram.filters import Command
 
 from src.bot.is_test_allowed import is_task_day_allowed
 from src.bot.states import FeetPhotoStates
+from src.bot.utils import send_llm_advice
 from src.db.connection import get_db_connection
 from src.db.patient_repository import save_patient_record
 from src.media.s3_client import S3Client
@@ -59,7 +60,7 @@ async def handle_feet_photo(message: Message, state: FSMContext):
         pending_feet_groups[message.media_group_id].append(message)
 
         if len(pending_feet_groups[message.media_group_id]) == 1:
-            asyncio.create_task(process_feet_group(message.media_group_id, state))
+            asyncio.create_task(process_feet_group(message, message.media_group_id, state))
         return
 
     # Обработка одиночного фото
@@ -101,6 +102,7 @@ async def process_single_feet_photo(message: Message, state: FSMContext):
         )
 
         await message.answer("✅ Фото стоп сохранено для анализа")
+        await send_llm_advice(message, {"prompt_type": "photo_analysis"}, [s3_url])
         await state.clear()
 
     except Exception as e:
@@ -111,7 +113,7 @@ async def process_single_feet_photo(message: Message, state: FSMContext):
             photo_path.unlink()
 
 
-async def process_feet_group(group_id: str, state: FSMContext):
+async def process_feet_group(message: Message, group_id: str, state: FSMContext):
     """Обработка группы фото стоп"""
     await asyncio.sleep(3)
 
@@ -160,6 +162,7 @@ async def process_feet_group(group_id: str, state: FSMContext):
         )
 
         await messages[0].answer("✅ Все фото стоп сохранены для анализа")
+        await send_llm_advice(message, {}, s3_urls)
         await state.clear()
 
     except Exception as e:

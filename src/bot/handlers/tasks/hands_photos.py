@@ -10,6 +10,7 @@ from aiogram.fsm.context import FSMContext
 
 from src.bot.is_test_allowed import is_task_day_allowed
 from src.bot.states import HandsPhotoStates
+from src.bot.utils import send_llm_advice
 from src.db.connection import get_db_connection
 from src.db.patient_repository import save_patient_record
 from src.media.s3_client import S3Client
@@ -84,7 +85,7 @@ async def handle_hands_photo(message: Message, state: FSMContext):
                 "user_id": message.from_user.id,
                 "state": state,
             }
-            asyncio.create_task(process_hands_group(message.media_group_id))
+            asyncio.create_task(process_hands_group(message, message.media_group_id))
 
         pending_hands_groups[message.media_group_id]["messages"].append(message)
         return
@@ -95,7 +96,7 @@ async def handle_hands_photo(message: Message, state: FSMContext):
     )
 
 
-async def process_hands_group(group_id: str):
+async def process_hands_group(message, group_id: str):
     """Обработка группы из 2 фото рук"""
     await asyncio.sleep(3)  # Ждем все фото группы
 
@@ -157,6 +158,7 @@ async def process_hands_group(group_id: str):
         )
 
         await messages[0].answer("✅ Оба фото рук сохранены для анализа")
+        await send_llm_advice(message, {"prompt_type": "photo_analysis"}, s3_urls)
         await state.clear()
 
     except Exception as e:

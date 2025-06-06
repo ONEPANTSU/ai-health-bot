@@ -152,6 +152,7 @@ async def process_weight(message: Message, state: FSMContext):
         await message.answer("Пожалуйста, введите корректный вес (30-300 кг)")
         return
 
+    await state.update_data(weight=int(message.text))
     data = await state.get_data()
     q_type = "greeting"
     data["questionnaire_type"] = q_type
@@ -159,14 +160,7 @@ async def process_weight(message: Message, state: FSMContext):
     await save_greeting_data(message.from_user.id, data)
 
     await message.answer(
-        "✅ Анкета сохранена!\n\n"
-        f"ФИО: {data['full_name']}\n"
-        f"Телефон: {data['phone']}\n"
-        f"Ник: @{data['telegram_nick']}\n"
-        f"Возраст: {data['age']}\n"
-        f"Пол: {data['gender']}\n"
-        f"Рост: {data['height']} см\n"
-        f"Вес: {message.text} кг",
+        "✅ Анкета сохранена!\n\n",
         reply_markup=ReplyKeyboardRemove(),
     )
     await send_llm_advice(message, data, [])
