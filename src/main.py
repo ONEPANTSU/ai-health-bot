@@ -79,6 +79,7 @@ async def main():
         BotCommand(command="walking", description="Начать задание 'Хождение'"),
 
         BotCommand(command="wearable_data", description="Заполнить данные с носимого устройства"),
+        BotCommand(command="speach", description="Видео речи"),
     ]
     await bot.set_my_commands(commands)
 
