@@ -42,7 +42,8 @@ async def save_greeting_data(telegram_id: int, data: dict):
 
 
 @router.message(Command("start"))
-async def handle_start(msg: Message, bot: Bot):
+async def handle_start(msg: Message, bot: Bot, state: FSMContext):
+    await state.clear()
     conn = await get_db_connection()
 
     await create_patient(
