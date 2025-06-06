@@ -106,7 +106,7 @@ async def handle_neck_video(message: Message, state: FSMContext):
             video_path.unlink()
 
 
-@router.message(F.content_type == ContentType.VIDEO_NOTE)
+@router.message(F.content_type == ContentType.VIDEO_NOTE, NeckVideoStates.waiting_neck_video)
 async def handle_video_note(message: Message):
     await message.answer(
         "Пожалуйста, отправьте видео в обычном формате, а не как видео-сообщение (кружок)"

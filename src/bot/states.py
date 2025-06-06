@@ -139,3 +139,9 @@ class TimezoneStates(StatesGroup):
 
 class TestingStates(StatesGroup):
     testing_started = State()
+
+class DeviceData(StatesGroup):
+    PROCESSING = State()
+
+class SpeachVideoStates(StatesGroup):
+    waiting_video = State()

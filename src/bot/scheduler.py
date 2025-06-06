@@ -379,7 +379,7 @@ def setup_scheduler(bot: Bot):
     """Настройка планировщика"""
     scheduler.add_job(
         check_and_send_questionnaires,
-        CronTrigger(minute="0", hour="*"),  # Запускаем каждый час
+        CronTrigger(minute="*", hour="*"),
         args=[bot],
         id="hourly_questionnaire_check",
         replace_existing=True,

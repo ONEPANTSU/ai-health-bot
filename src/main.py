@@ -77,6 +77,8 @@ async def main():
         BotCommand(command="running", description="Начать задание 'Бег'"),
         BotCommand(command="squats", description="Начать задание 'Приседания'"),
         BotCommand(command="walking", description="Начать задание 'Хождение'"),
+
+        BotCommand(command="wearable_data", description="Заполнить данные с носимого устройства"),
     ]
     await bot.set_my_commands(commands)
 
