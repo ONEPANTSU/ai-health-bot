@@ -86,10 +86,10 @@ async def check_and_send_questionnaires(
                         microsecond=0,
                     )
 
-                days_passed = (now.date() - global_start_date).days
+                days_passed = (now.date() - global_start_date.date()).days
 
                 logger.info(
-                    f"User {telegram_id}: start_date={global_start_date}, now={now.date()}, days_passed={days_passed}"
+                    f"User {telegram_id}: start_date={global_start_date.date()}, now={now.date()}, days_passed={days_passed}"
                 )
 
                 day_of_program = (
@@ -406,6 +406,15 @@ async def check_and_send_questionnaires(
                         telegram_id,
                         "😁 Пожалуйста, выполните задание 'Запись смеха/улыбки': /laughter",
                         "/laughter",
+                    )
+                if day_of_program == 9 and (
+                    current_hour == 10 and current_minute == 30
+                ):
+                    await send_questionnaire_to_user(
+                        bot,
+                        telegram_id,
+                        "😁 Пожалуйста, выполните задание 'Тест на реакцию': /reaction",
+                        "/reaction",
                     )
 
             except Exception as e:

@@ -79,7 +79,7 @@ async def handle_examination_files(message: Message, state: FSMContext):
         )
 
         conn = await get_db_connection()
-        answers = {"questionnaire_type": "checkup", "prompt_type": "blood_analysis"}
+        answers = {"questionnaire_type": "checkup", "prompt_type": "blood_tests"}
 
         await save_patient_record(
             conn=conn,
@@ -92,7 +92,7 @@ async def handle_examination_files(message: Message, state: FSMContext):
         )
 
         await message.answer(f"✅ Файл '{original_filename}' успешно сохранен!")
-        await send_llm_advice(message, {"prompt_type": "blood_analysis"}, [s3_key])
+        await send_llm_advice(message, {"prompt_type": "blood_tests"}, [s3_key])
         await state.clear()
 
     except Exception as e:

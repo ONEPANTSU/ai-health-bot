@@ -144,6 +144,8 @@ class TestingStates(StatesGroup):
 class DeviceData(StatesGroup):
     PROCESSING = State()
 
+class ReactionStates(StatesGroup):
+    PROCESSING = State()
 
 class SpeechVideoStates(StatesGroup):
     waiting_video = State()

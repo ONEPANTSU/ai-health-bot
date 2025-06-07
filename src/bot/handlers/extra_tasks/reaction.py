@@ -1,13 +1,12 @@
 import json
 
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from aiogram import Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 from aiogram.types import ReplyKeyboardRemove
 
-from src.bot.states import DeviceData
+from src.bot.states import ReactionStates
 from src.bot.utils import send_llm_advice
 from src.db.connection import get_db_connection
 from src.db.patient_repository import save_patient_record
@@ -15,30 +14,26 @@ from src.db.patient_repository import save_patient_record
 router = Router()
 
 
-@router.message(Command("wearable_data"))
-async def start_device_data(message: Message, state: FSMContext):
+@router.message(Command("reaction"))
+async def start_reaction(message: Message, state: FSMContext):
     await state.clear()
 
     await message.answer(
-        "Пришлите данные с носимого устройства за последний месяц в свободной текстовой форме.",
-        reply_markup=ReplyKeyboardMarkup(
-            keyboard=[
-                [KeyboardButton(text="Нет")],
-            ],
-            resize_keyboard=True,
-        ),
+        "Пройдите тест на реакцию https://www.arealme.com/reaction-test/ru/ "
+        "<br>И пришлите свою среднюю скорость реакции (в мс).",
+        reply_markup=ReplyKeyboardRemove(),
     )
-    await state.set_state(DeviceData.PROCESSING)
+    await state.set_state(ReactionStates.PROCESSING)
 
 
-@router.message(DeviceData.PROCESSING)
-async def process_device_data(message: Message, state: FSMContext):
+@router.message(ReactionStates.PROCESSING)
+async def process_reaction(message: Message, state: FSMContext):
     conn = await get_db_connection()
-    q_type = "device"
+    q_type = "reaction"
 
     answers = {
         "questionnaire_type": q_type,
-        "prompt_type": "wearable_data",
+        "prompt_type": "balance_tests",
         "data": message.text,
     }
 
@@ -53,7 +48,7 @@ async def process_device_data(message: Message, state: FSMContext):
     )
 
     # Формируем отчет для пользователя
-    report = "✅ Анкета сохранена!"
+    report = "✅ Данные сохранены!"
     await message.answer(
         report,
         reply_markup=ReplyKeyboardRemove(),

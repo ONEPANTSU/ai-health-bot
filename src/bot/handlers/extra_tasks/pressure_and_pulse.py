@@ -71,10 +71,7 @@ async def handle_pressure_pulse(message: Message, state: FSMContext):
 
             await send_llm_advice(
                 message,
-                {
-                    "prompt_type": "wearable_data",
-                    "extracted_values": answers["extracted_values"],
-                },
+                answers,
                 [],
             )
             await state.clear()
