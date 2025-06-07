@@ -146,6 +146,9 @@ class DeviceData(StatesGroup):
 
 class ReactionStates(StatesGroup):
     PROCESSING = State()
+    
+class FeedbackStates(StatesGroup):
+    PROCESSING = State()
 
 class SpeechVideoStates(StatesGroup):
     waiting_video = State()

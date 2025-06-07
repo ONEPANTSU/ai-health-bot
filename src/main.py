@@ -109,6 +109,7 @@ async def main():
         BotCommand(command="laughter", description="Видео улыбки/смеха"),
         BotCommand(command="blood", description="Сдача анализов крови"),
         BotCommand(command="reaction", description="Тест на реакцию"),
+        BotCommand(command="feedback", description="Тест на реакцию"),
     ]
     await bot.set_my_commands(commands)
 

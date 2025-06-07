@@ -413,10 +413,29 @@ async def check_and_send_questionnaires(
                     await send_questionnaire_to_user(
                         bot,
                         telegram_id,
-                        "😁 Пожалуйста, выполните задание 'Тест на реакцию': /reaction",
+                        "Пожалуйста, выполните задание 'Тест на реакцию': /reaction",
                         "/reaction",
                     )
 
+                if day_of_program in [7, 14, 21, 28] and (
+                    current_hour == 19 and current_minute == 0
+                ):
+                    await send_questionnaire_to_user(
+                        bot,
+                        telegram_id,
+                        "Пожалуйста, заполните обратную связь: /feedback",
+                        "/feedback",
+                    )
+
+                if day_of_program == 30 and (
+                    current_hour == 20 and current_minute == 15
+                ):
+                    await send_questionnaire_to_user(
+                        bot,
+                        telegram_id,
+                        "Пожалуйста, заполните финальную обратную связь: /feedback",
+                        "/feedback",
+                    )
             except Exception as e:
                 logger.error(
                     f"Error processing patient {patient.get('telegram_id')}: {e}"
