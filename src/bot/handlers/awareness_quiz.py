@@ -50,7 +50,7 @@ async def finish_questionnaire(message: Message, state: FSMContext, data: dict):
         report,
         reply_markup=ReplyKeyboardRemove(),
     )
-    await send_llm_advice(message, data, [])
+    await send_llm_advice(message, answers, [])
     await state.clear()
 
 
