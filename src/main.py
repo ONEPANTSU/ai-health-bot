@@ -45,6 +45,8 @@ from src.bot.handlers.extra_tasks.breathing_at_rest import (
 )
 from src.bot.handlers.extra_tasks.smile_laugh import router as smile_laugh_router
 from src.bot.handlers.extra_tasks.blood_tests import router as blood_test_router
+from src.bot.handlers.extra_tasks.reaction import router as reaction_router
+from src.bot.handlers.extra_tasks.feedback import router as feedback_router
 
 from src.bot_instance import bot
 from src.llm.scheduler import setup_llm_scheduler
@@ -109,7 +111,7 @@ async def main():
         BotCommand(command="laughter", description="Видео улыбки/смеха"),
         BotCommand(command="blood", description="Сдача анализов крови"),
         BotCommand(command="reaction", description="Тест на реакцию"),
-        BotCommand(command="feedback", description="Тест на реакцию"),
+        BotCommand(command="feedback", description="Оставить обратную связь"),
     ]
     await bot.set_my_commands(commands)
 
@@ -149,6 +151,8 @@ async def main():
     dp.include_router(smile_laugh_router)
     dp.include_router(tongue_router)
     dp.include_router(blood_test_router)
+    dp.include_router(reaction_router)
+    dp.include_router(feedback_router)
 
     print("🤖 Бот запущен...")
     await dp.start_polling(bot)
