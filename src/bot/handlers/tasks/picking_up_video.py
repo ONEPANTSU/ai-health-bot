@@ -85,7 +85,7 @@ async def handle_pickup_video(message: Message, state: FSMContext):
             filename=video_name,
         )
         contact_photo_key = await extract_contact_sheet_and_upload(
-            video_path, video_key, username
+            video_path, video_name, username
         )
 
         conn = await get_db_connection()
