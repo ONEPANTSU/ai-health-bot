@@ -21,7 +21,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade():
     op.drop_table("system_settings")
-    op.drop_table("questionaires")
+    op.drop_table("questionnaires")
 
 
 def downgrade():
@@ -34,7 +34,7 @@ def downgrade():
         sa.UniqueConstraint("key"),
     )
     op.create_table(
-        "questionaires",
+        "questionnaires",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("name", sa.String(length=255), nullable=False),
         sa.Column("description", sa.Text(), nullable=True),
