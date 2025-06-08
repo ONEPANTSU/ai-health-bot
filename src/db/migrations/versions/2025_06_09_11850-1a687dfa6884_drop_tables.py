@@ -21,6 +21,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade():
     op.drop_table("system_settings")
+    op.drop_column("patient_history", "questionnaire_id")
     op.drop_table("questionnaires")
 
 

@@ -28,21 +28,11 @@ class Patient(Base):
     testing_start_date = Column(DateTime)
 
 
-class Questionnaire(Base):
-    __tablename__ = "questionnaires"
-
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    name = Column(String, nullable=False)
-    description = Column(String)
-    created_at = Column(DateTime, server_default="now()")
-
-
 class PatientHistory(Base):
     __tablename__ = "patient_history"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     patient_id = Column(UUID, ForeignKey("patients.id"))
-    questionnaire_id = Column(UUID, ForeignKey("questionnaires.id"))
     answers = Column(JSON, nullable=False)
     created_at = Column(DateTime, server_default="now()")
     gpt_response = Column(String)
