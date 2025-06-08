@@ -79,7 +79,9 @@ async def run_weekly_digest(bot: Bot):
 
             current_week = days_passed // 7 + 1
             is_last_day_of_week = (days_passed + 1) % 7 == 0
-
+            current_hour = now.hour
+            if current_hour != 21:
+                return
             if is_last_day_of_week and 1 <= current_week <= 4:
                 message = await dispatch_weekly_to_llm(
                     username=patient["username"],
