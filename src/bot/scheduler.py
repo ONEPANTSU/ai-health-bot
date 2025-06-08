@@ -106,8 +106,8 @@ async def check_and_send_questionnaires(
                         bot, conn, telegram_id, now.date()
                     )
 
-                # 2. Анкета приветствия (день 1, 12:00)
-                if day_of_program == 1 and (current_hour == 12 and current_minute == 0):
+                # 2. Анкета приветствия (день 1, 9:00)
+                if day_of_program == 1 and (current_hour == 9 and current_minute == 0):
                     await send_questionnaire_to_user(
                         bot,
                         telegram_id,
@@ -124,8 +124,8 @@ async def check_and_send_questionnaires(
                         "/health",
                     )
 
-                # 4. Анкета питания (день 5 или 8, 19:00)
-                if day_of_program in [5, 8] and (
+                # 4. Анкета питания (день 6 или 8, 19:00)
+                if day_of_program in [6, 8] and (
                     current_hour == 19 and current_minute == 0
                 ):
                     await send_questionnaire_to_user(
