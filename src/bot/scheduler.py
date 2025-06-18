@@ -100,12 +100,13 @@ async def check_and_send_questionnaires(
                 current_minute = now.minute
                 # 1. Ежедневная анкета (10:00)
                 if (current_hour == 10 and current_minute == 0) or (
-                    force_time and force_time == (10, 0)
+                        force_time and force_time == (10, 0)
                 ):
                     await check_and_send_daily_questionnaire(
                         bot, conn, telegram_id, now.date()
                     )
 
+                # ----------------- ДЕНЬ 1 -----------------
                 # 2. Анкета приветствия (день 1, 9:00)
                 if day_of_program == 1 and (current_hour == 9 and current_minute == 0):
                     await send_questionnaire_to_user(
@@ -115,224 +116,8 @@ async def check_and_send_questionnaires(
                         "/greeting",
                     )
 
-                # 3. Анкета здоровья (день 4, 19:00)
-                if day_of_program == 4 and (current_hour == 19 and current_minute == 0):
-                    await send_questionnaire_to_user(
-                        bot,
-                        telegram_id,
-                        "🏥 Пожалуйста, заполните анкету состояния здоровья: /health",
-                        "/health",
-                    )
-
-                # 4. Анкета питания (день 6 или 8, 19:00)
-                if day_of_program in [6, 8] and (
-                    current_hour == 19 and current_minute == 0
-                ):
-                    await send_questionnaire_to_user(
-                        bot,
-                        telegram_id,
-                        "🍎 Пожалуйста, заполните анкету питания: /nutrition",
-                        "/nutrition",
-                    )
-
-                # 5. Анкета телосложения (день 10, 18:30)
-                if day_of_program == 10 and (
-                    current_hour == 18 and current_minute == 30
-                ):
-                    await send_questionnaire_to_user(
-                        bot,
-                        telegram_id,
-                        "📏 Пожалуйста, заполните анкету телосложения: /body_measurements",
-                        "/body_measurements",
-                    )
-
-                # 6. Анкета БАДов (день 11, 19:00)
-                if day_of_program == 11 and (
-                    current_hour == 19 and current_minute == 0
-                ):
-                    await send_questionnaire_to_user(
-                        bot,
-                        telegram_id,
-                        "💊 Пожалуйста, заполните анкету приема БАДов/витаминов: /supplements",
-                        "/supplements",
-                    )
-
-                # 7. Анкета осознанности (день 14, 18:30)
-                if day_of_program == 14 and (
-                    current_hour == 18 and current_minute == 30
-                ):
-                    await send_questionnaire_to_user(
-                        bot,
-                        telegram_id,
-                        "🧘 Пожалуйста, заполните анкету осознанности (медитации): /mindfulness",
-                        "/mindfulness",
-                    )
-
-                # 8. Анкета безопасности (день 16, 19:00)
-                if day_of_program == 16 and (
-                    current_hour == 19 and current_minute == 0
-                ):
-                    await send_questionnaire_to_user(
-                        bot,
-                        telegram_id,
-                        "🛡️ Пожалуйста, заполните анкету безопасности и поддержки: /safety",
-                        "/safety",
-                    )
-
-                # 9. Анкета окружения (день 18, 19:00)
-                if day_of_program == 18 and (
-                    current_hour == 19 and current_minute == 0
-                ):
-                    await send_questionnaire_to_user(
-                        bot,
-                        telegram_id,
-                        "👨‍👩‍👧‍👦 Пожалуйста, заполните анкету близкого окружения: /close_environment",
-                        "/close_environment",
-                    )
-
-                if day_of_program == 2 and (current_hour == 11 and current_minute == 0):
-                    await send_questionnaire_to_user(
-                        bot,
-                        telegram_id,
-                        "👨‍🦱 Пожалуйста, выполните задание 'Фото лица': /face",
-                        "/face",
-                    )
-                if day_of_program == 22 and (
-                    current_hour == 19 and current_minute == 0
-                ):
-                    await send_questionnaire_to_user(
-                        bot,
-                        telegram_id,
-                        "👨‍🦱 Пожалуйста, выполните задание 'Фото лица': /face",
-                        "/face",
-                    )
-                if day_of_program == 20 and (
-                    current_hour == 19 and current_minute == 0
-                ):
-                    await send_questionnaire_to_user(
-                        bot,
-                        telegram_id,
-                        "🖐️ Пожалуйста, выполните задание 'Фото рук': /hands",
-                        "/hands",
-                    )
-
-                if day_of_program == 3 and (
-                    current_hour == 18 and current_minute == 30
-                ):
-                    await send_questionnaire_to_user(
-                        bot,
-                        telegram_id,
-                        "🧍 Пожалуйста, выполните задание 'Фото в полный рост': /full_body",
-                        "/full_body",
-                    )
-                if day_of_program == 17 and (
-                    current_hour == 19 and current_minute == 0
-                ):
-                    await send_questionnaire_to_user(
-                        bot,
-                        telegram_id,
-                        "🧍 Пожалуйста, выполните задание 'Фото в полный рост': /full_body",
-                        "/full_body",
-                    )
-
-                if day_of_program in [5, 19] and (
-                    current_hour == 19 and current_minute == 0
-                ):
-                    await send_questionnaire_to_user(
-                        bot,
-                        telegram_id,
-                        "🚶 Пожалуйста, выполните задание 'Ходьба': /walking",
-                        "/walking",
-                    )
-
-                if day_of_program in [8, 29] and (
-                    current_hour == 18 and current_minute == 30
-                ):
-                    await send_questionnaire_to_user(
-                        bot,
-                        telegram_id,
-                        "🏃 Пожалуйста, выполните задание 'Бег': /running",
-                        "/running",
-                    )
-
-                if day_of_program == 10 and (
-                    current_hour == 19 and current_minute == 0
-                ):
-                    await send_questionnaire_to_user(
-                        bot,
-                        telegram_id,
-                        "⚡️ Пожалуйста, выполните задание 'Приседания': /squats",
-                        "/squats",
-                    )
-
-                if day_of_program == 9 and (current_hour == 19 and current_minute == 0):
-                    await send_questionnaire_to_user(
-                        bot,
-                        telegram_id,
-                        "‍👦 Пожалуйста, выполните задание 'Вращения головой': /neck",
-                        "/neck",
-                    )
-
-                if day_of_program == 27 and (
-                    current_hour == 19 and current_minute == 0
-                ):
-                    await send_questionnaire_to_user(
-                        bot,
-                        telegram_id,
-                        "⚖️ Пожалуйста, выполните задание 'Баланс': /balance",
-                        "/balance",
-                    )
-                if day_of_program == 15 and (
-                    current_hour == 10 and current_minute == 0
-                ):
-                    await send_questionnaire_to_user(
-                        bot,
-                        telegram_id,
-                        "⚡️ Пожалуйста, выполните задание 'Планка': /plank",
-                        "/plank",
-                    )
-                if day_of_program == 12 and (
-                    current_hour == 18 and current_minute == 30
-                ):
-                    await send_questionnaire_to_user(
-                        bot,
-                        telegram_id,
-                        "🫳 Пожалуйста, выполните задание 'Поднятие объекта': /picking_up",
-                        "/picking_up",
-                    )
-
-                if day_of_program == 9 and (
-                    current_hour == 10 and current_minute == 30
-                ):
-                    await send_questionnaire_to_user(
-                        bot,
-                        telegram_id,
-                        "🦶 Пожалуйста, выполните задание 'Фото стоп': /feet",
-                        "/feet",
-                    )
-
-                if day_of_program == 23 and (
-                    current_hour == 19 and current_minute == 0
-                ):
-                    await send_questionnaire_to_user(
-                        bot,
-                        telegram_id,
-                        "🦶 Пожалуйста, выполните задание 'Фото стоп': /feet",
-                        "/feet",
-                    )
-
-                if day_of_program == 15 and (
-                    current_hour == 9 and current_minute == 30
-                ):
-                    await send_questionnaire_to_user(
-                        bot,
-                        telegram_id,
-                        "👁️ Пожалуйста, выполните задание 'Микрофото глаза': /eye",
-                        "/eye",
-                    )
-                if day_of_program in [1, 30] and (
-                    current_hour == 20 and current_minute == 0
-                ):
+                # Данные с носимого устройства (день 1, 20:00)
+                if day_of_program == 1 and (current_hour == 20 and current_minute == 0):
                     await send_questionnaire_to_user(
                         bot,
                         telegram_id,
@@ -340,39 +125,216 @@ async def check_and_send_questionnaires(
                         "/wearable_data",
                     )
 
-                if day_of_program == 2 and (current_hour == 19 and current_minute == 0):
+                # ----------------- ДЕНЬ 2 -----------------
+                if day_of_program == 2 and (current_hour == 11 and current_minute == 0):
                     await send_questionnaire_to_user(
                         bot,
                         telegram_id,
-                        "📱 Пожалуйста, выполните задание 'Рассказ о себе': /speech",
-                        "/speech",
+                        "👨‍🦱 Пожалуйста, выполните задание 'Фото лица': /face",
+                        "/face",
                     )
+                if day_of_program == 2 and (current_hour == 18 and current_minute == 30):
+                    await send_questionnaire_to_user(
+                        bot,
+                        telegram_id,
+                        "🧘 Пожалуйста, заполните анкету осознанности (медитации): /mindfulness",
+                        "/mindfulness",
+                    )
+
+                # ----------------- ДЕНЬ 3 -----------------
                 if day_of_program == 3 and (current_hour == 19 and current_minute == 0):
                     await send_questionnaire_to_user(
                         bot,
                         telegram_id,
-                        "🧑‍⚕️ Пожалуйста, выполните задание 'Обследования за 3 месяца': /checkups",
-                        "/checkups",
+                        "🫁 Пожалуйста, выполните задание 'Дыхание в покое': /rest_breathing",
+                        "/rest_breathing",
                     )
-                if day_of_program == 4 and (current_hour == 12 and current_minute == 0):
+
+                # if day_of_program == 3 and (current_hour == 18 and current_minute == 30):
+                #     await send_questionnaire_to_user(
+                #         bot,
+                #         telegram_id,
+                #         "🧍 Пожалуйста, выполните задание 'Фото в полный рост': /full_body",
+                #         "/full_body",
+                #     )
+                #
+                # if day_of_program == 3 and (current_hour == 19 and current_minute == 0):
+                #     await send_questionnaire_to_user(
+                #         bot,
+                #         telegram_id,
+                #         "🧑‍⚕️ Пожалуйста, выполните задание 'Обследования за 3 месяца': /checkups",
+                #         "/checkups",
+                #     )
+
+                # ----------------- ДЕНЬ 4 -----------------
+
+                if day_of_program == 4 and (current_hour == 19 and current_minute == 0):
                     await send_questionnaire_to_user(
                         bot,
                         telegram_id,
-                        "🩸️ Пожалуйста, выполните задание 'Сдача анализов крови': /blood",
-                        "/blood",
+                        "⚡️ Пожалуйста, выполните задание 'Планка': /plank",
+                        "/plank",
                     )
-                if day_of_program in [7, 14, 21, 28] and (
-                    current_hour == 9 and current_minute == 0
-                ):
+
+                # 3. Анкета здоровья (день 4, 19:00)
+                # if day_of_program == 4 and (current_hour == 19 and current_minute == 0):
+                #     await send_questionnaire_to_user(
+                #         bot,
+                #         telegram_id,
+                #         "🏥 Пожалуйста, заполните анкету состояния здоровья: /subjective_health",
+                #         "/subjective_health",
+                #     )
+                #
+                # if day_of_program == 4 and (current_hour == 12 and current_minute == 0):
+                #     await send_questionnaire_to_user(
+                #         bot,
+                #         telegram_id,
+                #         "🩸️ Пожалуйста, выполните задание 'Сдача анализов крови': /blood",
+                #         "/blood",
+                #     )
+
+                # ----------------- ДЕНЬ 5 -----------------
+                if day_of_program == 5 and (current_hour == 19 and current_minute == 0):
+                    await send_questionnaire_to_user(
+                        bot,
+                        telegram_id,
+                        "⚖️ Пожалуйста, выполните задание 'Баланс': /balance",
+                        "/balance",
+                    )
+
+                # if day_of_program == 5 and (current_hour == 19 and current_minute == 0):
+                #     await send_questionnaire_to_user(
+                #         bot,
+                #         telegram_id,
+                #         "🚶 Пожалуйста, выполните задание 'Ходьба': /walking",
+                #         "/walking",
+                #     )
+
+                # ----------------- ДЕНЬ 6 -----------------
+                if day_of_program == 6 and (current_hour == 11 and current_minute == 0):
                     await send_questionnaire_to_user(
                         bot,
                         telegram_id,
                         "️❤️ Пожалуйста, выполните задание 'Измерения давления и пульса': /pressure",
                         "/pressure",
                     )
-                if day_of_program == 13 and (
-                    current_hour == 19 and current_minute == 0
-                ):
+
+                # ----------------- ДЕНЬ 7 -----------------
+                if day_of_program == 7 and (current_hour == 19 and current_minute == 0):
+                    await send_questionnaire_to_user(
+                            bot,
+                            telegram_id,
+                            "🏥 Пожалуйста, заполните анкету состояния здоровья: /subjective_health",
+                            "/subjective_health",
+                        )
+
+                if day_of_program == 7 and (current_hour == 20 and current_minute == 0):
+                    await send_questionnaire_to_user(
+                            bot,
+                            telegram_id,
+                            "🧑‍⚕️ Пожалуйста, выполните задание 'Обследования за 3 месяца': /checkups",
+                            "/checkups",
+                        )
+
+                # if day_of_program == 7 and (current_hour == 19 and current_minute == 0):
+                #     await send_questionnaire_to_user(
+                #         bot,
+                #         telegram_id,
+                #         "Пожалуйста, заполните обратную связь: /feedback",
+                #         "/feedback",
+                #     )
+
+                # ----------------- ДЕНЬ 8 -----------------
+                if day_of_program == 8 and (current_hour == 18 and current_minute == 30):
+                    await send_questionnaire_to_user(
+                        bot,
+                        telegram_id,
+                        "🏃 Пожалуйста, выполните задание 'Бег': /running",
+                        "/running",
+                    )
+                #
+                # if day_of_program == 8 and (current_hour == 19 and current_minute == 0):
+                #     await send_questionnaire_to_user(
+                #         bot,
+                #         telegram_id,
+                #         "🍎 Пожалуйста, заполните анкету питания: /nutrition",
+                #         "/nutrition",
+                #     )
+
+                # ----------------- ДЕНЬ 9 -----------------
+
+                if day_of_program == 9 and (current_hour == 19 and current_minute == 0):
+                    await send_questionnaire_to_user(
+                        bot,
+                        telegram_id,
+                        "📱 Пожалуйста, выполните задание 'Рассказ о себе': /speech",
+                        "/speech",
+                    )
+
+                # if day_of_program == 9 and (current_hour == 10 and current_minute == 30):
+                #     await send_questionnaire_to_user(
+                #         bot,
+                #         telegram_id,
+                #         "🦶 Пожалуйста, выполните задание 'Фото стоп': /feet",
+                #         "/feet",
+                #     )
+                #     await send_questionnaire_to_user(
+                #         bot,
+                #         telegram_id,
+                #         "Пожалуйста, выполните задание 'Тест на реакцию': /reaction",
+                #         "/reaction",
+                #     )
+                #
+
+
+                # ----------------- ДЕНЬ 10 -----------------
+                # 5. Анкета телосложения (день 10, 18:30)
+                # if day_of_program == 10 and (current_hour == 18 and current_minute == 30):
+                #     await send_questionnaire_to_user(
+                #         bot,
+                #         telegram_id,
+                #         "📏 Пожалуйста, заполните анкету телосложения: /body_measurements",
+                #         "/body_measurements",
+                #     )
+
+                if day_of_program == 10 and (current_hour == 19 and current_minute == 0):
+                    await send_questionnaire_to_user(
+                        bot,
+                        telegram_id,
+                        "⚡️ Пожалуйста, выполните задание 'Приседания': /squats",
+                        "/squats",
+                    )
+
+                if day_of_program == 10 and (current_hour == 20 and current_minute == 0):
+                    await send_questionnaire_to_user(
+                        bot,
+                        telegram_id,
+                        "🧑‍⚕️ Пожалуйста, выполните задание 'Обследования за 3 месяца': /checkups",
+                        "/checkups",
+                    )
+
+                # ----------------- ДЕНЬ 11 -----------------
+
+                if day_of_program == 11 and (current_hour == 18 and current_minute == 30):
+                    await send_questionnaire_to_user(
+                        bot,
+                        telegram_id,
+                        "🫳 Пожалуйста, выполните задание 'Поднятие объекта': /picking_up",
+                        "/picking_up",
+                    )
+
+
+                # ----------------- ДЕНЬ 12 -----------------
+                if day_of_program == 12 and (current_hour == 9 and current_minute == 0):
+                    await send_questionnaire_to_user(
+                        bot,
+                        telegram_id,
+                        "🫁 Пожалуйста, выполните задание 'Дыхание в покое': /rest_breathing",
+                        "/rest_breathing",
+                    )
+
+                # ----------------- ДЕНЬ 13 -----------------
+                if day_of_program == 13 and (current_hour == 19 and current_minute == 0):
                     await send_questionnaire_to_user(
                         bot,
                         telegram_id,
@@ -380,36 +342,168 @@ async def check_and_send_questionnaires(
                         "/breathing",
                     )
 
-                if day_of_program == 24 and (
-                    current_hour == 19 and current_minute == 0
-                ):
-                    await send_questionnaire_to_user(
-                        bot,
-                        telegram_id,
-                        "🫁 Пожалуйста, выполните задание 'Дыхание в покое': /rest_breathing",
-                        "/rest_breathing",
-                    )
-                if day_of_program == 25 and (
-                    current_hour == 9 and current_minute == 30
-                ):
+                # ----------------- ДЕНЬ 14 -----------------
+                if day_of_program == 14 and (current_hour == 11 and current_minute == 0):
                     await send_questionnaire_to_user(
                         bot,
                         telegram_id,
                         "👅 Пожалуйста, выполните задание 'Фото языка утром': /tongue",
                         "/tongue",
                     )
-                if day_of_program == 26 and (
-                    current_hour == 19 and current_minute == 0
-                ):
+                if day_of_program == 14 and (current_hour == 11 and current_minute == 30):
+                    await send_questionnaire_to_user(
+                        bot,
+                        telegram_id,
+                        "👁️ Пожалуйста, выполните задание 'Микрофото глаза': /eye",
+                        "/eye",
+                    )
+                if day_of_program == 14 and (current_hour == 12 and current_minute == 0):
+                    await send_questionnaire_to_user(
+                        bot,
+                        telegram_id,
+                        "👨‍🦱 Пожалуйста, выполните задание 'Фото лица': /face",
+                        "/face",
+                    )
+
+                # 7. Анкета осознанности (день 14, 18:30)
+                # if day_of_program == 14 and (current_hour == 18 and current_minute == 30):
+                #     await send_questionnaire_to_user(
+                #         bot,
+                #         telegram_id,
+                #         "🧘 Пожалуйста, заполните анкету осознанности (медитации): /mindfulness",
+                #         "/mindfulness",
+                #     )
+                #
+                # if day_of_program == 14 and (current_hour == 9 and current_minute == 0):
+                #     await send_questionnaire_to_user(
+                #         bot,
+                #         telegram_id,
+                #         "️❤️ Пожалуйста, выполните задание 'Измерения давления и пульса': /pressure",
+                #         "/pressure",
+                #     )
+                #
+                # if day_of_program == 14 and (current_hour == 19 and current_minute == 0):
+                #     await send_questionnaire_to_user(
+                #         bot,
+                #         telegram_id,
+                #         "Пожалуйста, заполните обратную связь: /feedback",
+                #         "/feedback",
+                #     )
+
+                # ----------------- ДЕНЬ 15 -----------------
+                if day_of_program == 15 and (current_hour == 18 and current_minute == 30):
+                    await send_questionnaire_to_user(
+                        bot,
+                        telegram_id,
+                        "📏 Пожалуйста, заполните анкету телосложения: /body_measurements",
+                        "/body_measurements",
+                    )
+                if day_of_program == 15 and (current_hour == 19 and current_minute == 0):
+                    await send_questionnaire_to_user(
+                        bot,
+                        telegram_id,
+                        "💊 Пожалуйста, заполните анкету приема БАДов/витаминов: /supplements",
+                        "/supplements",
+                    )
+
+                # ----------------- ДЕНЬ 16 -----------------
+                if day_of_program == 16 and (current_hour == 19 and current_minute == 0):
+                    await send_questionnaire_to_user(
+                        bot,
+                        telegram_id,
+                        "🧍 Пожалуйста, выполните задание 'Фото в полный рост': /full_body",
+                        "/full_body",
+                    )
+
+                # ----------------- ДЕНЬ 17 -----------------
+                if day_of_program == 17 and (current_hour == 18 and current_minute == 30):
+                    await send_questionnaire_to_user(
+                        bot,
+                        telegram_id,
+                        "🖐️ Пожалуйста, выполните задание 'Фото рук': /hands",
+                        "/hands",
+                    )
+                if day_of_program == 17 and (current_hour == 19 and current_minute == 0):
+                    await send_questionnaire_to_user(
+                        bot,
+                        telegram_id,
+                        "🦶 Пожалуйста, выполните задание 'Фото стоп': /feet",
+                        "/feet",
+                    )
+
+                # ----------------- ДЕНЬ 18 -----------------
+                if day_of_program == 18 and (current_hour == 19 and current_minute == 0):
+                    await send_questionnaire_to_user(
+                        bot,
+                        telegram_id,
+                        "🚶 Пожалуйста, выполните задание 'Ходьба': /walking",
+                        "/walking",
+                    )
+
+                # ----------------- ДЕНЬ 19 -----------------
+
+                if day_of_program == 19 and (current_hour == 19 and current_minute == 0):
+                    await send_questionnaire_to_user(
+                        bot,
+                        telegram_id,
+                        "‍👦 Пожалуйста, выполните задание 'Вращения головой': /neck",
+                        "/neck",
+                    )
+                # ----------------- ДЕНЬ 20 -----------------
+                if day_of_program == 20 and (current_hour == 19 and current_minute == 0):
+                    await send_questionnaire_to_user(
+                        bot,
+                        telegram_id,
+                        "🍎 Пожалуйста, заполните анкету питания: /nutrition",
+                        "/nutrition",
+                    )
+
+                # ----------------- ДЕНЬ 21 -----------------
+                # if day_of_program == 21 and (current_hour == 9 and current_minute == 0):
+                #     await send_questionnaire_to_user(
+                #         bot,
+                #         telegram_id,
+                #         "️❤️ Пожалуйста, выполните задание 'Измерения давления и пульса': /pressure",
+                #         "/pressure",
+                #     )
+                #
+                # if day_of_program == 21 and (current_hour == 19 and current_minute == 0):
+                #     await send_questionnaire_to_user(
+                #         bot,
+                #         telegram_id,
+                #         "Пожалуйста, заполните обратную связь: /feedback",
+                #         "/feedback",
+                #     )
+
+                # ----------------- ДЕНЬ 22 -----------------
+                if day_of_program == 22 and (current_hour == 19 and current_minute == 0):
+                    await send_questionnaire_to_user(
+                        bot,
+                        telegram_id,
+                        "🛡️ Пожалуйста, заполните анкету безопасности и поддержки: /safety",
+                        "/safety",
+                    )
+
+                # ----------------- ДЕНЬ 23 -----------------
+                if day_of_program == 23 and (current_hour == 19 and current_minute == 0):
+                    await send_questionnaire_to_user(
+                        bot,
+                        telegram_id,
+                        "👨‍👩‍👧‍👦 Пожалуйста, заполните анкету близкого окружения: /close_environment",
+                        "/close_environment",
+                    )
+
+                # ----------------- ДЕНЬ 24 -----------------
+                if day_of_program == 24 and (current_hour == 19 and current_minute == 0):
                     await send_questionnaire_to_user(
                         bot,
                         telegram_id,
                         "😁 Пожалуйста, выполните задание 'Запись смеха/улыбки': /laughter",
                         "/laughter",
                     )
-                if day_of_program == 9 and (
-                    current_hour == 10 and current_minute == 30
-                ):
+
+                # ----------------- ДЕНЬ 25 -----------------
+                if day_of_program == 25 and (current_hour == 10 and current_minute == 30):
                     await send_questionnaire_to_user(
                         bot,
                         telegram_id,
@@ -417,25 +511,29 @@ async def check_and_send_questionnaires(
                         "/reaction",
                     )
 
-                if day_of_program in [7, 14, 21, 28] and (
-                    current_hour == 19 and current_minute == 0
-                ):
+
+                # ----------------- ДЕНЬ 26 -----------------
+
+
+                # ----------------- ДЕНЬ 27 -----------------
+                if day_of_program == 27 and (current_hour == 19 and current_minute == 0):
                     await send_questionnaire_to_user(
                         bot,
                         telegram_id,
-                        "Пожалуйста, заполните обратную связь: /feedback",
-                        "/feedback",
+                        "🏥 Пожалуйста, заполните анкету состояния здоровья: /subjective_health",
+                        "/subjective_health",
                     )
 
-                if day_of_program == 30 and (
-                    current_hour == 20 and current_minute == 15
-                ):
+                # ----------------- ДЕНЬ 28 -----------------
+
+                if day_of_program == 28 and (current_hour == 20 and current_minute == 15):
                     await send_questionnaire_to_user(
                         bot,
                         telegram_id,
                         "Пожалуйста, заполните финальную обратную связь: /feedback",
                         "/feedback",
                     )
+
             except Exception as e:
                 logger.error(
                     f"Error processing patient {patient.get('telegram_id')}: {e}"

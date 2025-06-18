@@ -98,6 +98,7 @@ async def run_weekly_digest(bot: Bot):
 
 
 def setup_llm_scheduler(bot: Bot):
+    return
     # scheduler.add_job(
     #     run_daily_digest, CronTrigger(minute="0", hour="*"), kwargs={"bot": bot}
     # )

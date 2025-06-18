@@ -5,6 +5,7 @@ from src.llm.service import dispatch_to_llm
 
 
 async def send_llm_advice(message: str, data: dict, media_urls: list[str] = None):
+    return
     if not media_urls:
         media_urls = []
     try:
