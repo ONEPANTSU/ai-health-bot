@@ -20,7 +20,7 @@ async def start_reaction(message: Message, state: FSMContext):
 
     await message.answer(
         "Пройдите тест на реакцию https://www.arealme.com/reaction-test/ru/ "
-        "<br>И пришлите свою среднюю скорость реакции (в мс).",
+        "\nИ пришлите свою среднюю скорость реакции (в мс).",
         reply_markup=ReplyKeyboardRemove(),
     )
     await state.set_state(ReactionStates.PROCESSING)
