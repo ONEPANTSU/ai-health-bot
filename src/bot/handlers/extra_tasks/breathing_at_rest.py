@@ -66,9 +66,6 @@ async def handle_rest_breathing_video(message: Message, state: FSMContext):
     video_path = None
 
     try:
-        if video.duration < 120:
-            await message.answer("❌ Видео должно быть не короче 2 минут")
-            return
 
         file = await message.bot.get_file(video.file_id)
         video_path = temp_dir / f"rest_breathing_{user_id}_{file.file_id}.mp4"
@@ -109,9 +106,20 @@ async def handle_rest_breathing_video(message: Message, state: FSMContext):
             [contact_photo_key],
         )
         await state.clear()
-
     except Exception as e:
-        await message.answer("❌ Ошибка при сохранении видео")
+        if "file is too big" in str(e):
+            await message.answer("""
+            <p>📏 <strong>Размер видео превышает 200 МБ.</strong></p>
+            <p>Пожалуйста, уменьшите размер файла, например, используя один из следующих онлайн-инструментов:</p>
+            <ul>
+                <li><a href="https://www.freeconvert.com/video-compressor" target="_blank">FreeConvert</a></li>
+                <li><a href="https://www.compress2go.com/compress-video" target="_blank">Compress2Go</a></li>
+                <li><a href="https://www.capcut.com/tools/free-video-compressor" target="_blank">CapCut</a></li>
+            </ul>
+            <p>После сжатия отправьте видео снова, и я с радостью продолжу обработку.</p>
+            """)
+        else:
+            await message.answer("❌ Ошибка при сохранении видео")
         logging.error(f"Error: {e}")
     finally:
         if video_path and video_path.exists():
