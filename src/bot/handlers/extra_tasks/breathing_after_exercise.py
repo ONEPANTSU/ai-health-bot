@@ -1,4 +1,5 @@
 import json
+import logging
 from pathlib import Path
 from aiogram import Router, F
 from aiogram.types import Message, ContentType
@@ -98,7 +99,7 @@ async def handle_breathing_video(message: Message, state: FSMContext):
 
     except Exception as e:
         await message.answer("❌ Ошибка при сохранении видео")
-        print(f"Error: {e}")
+        logging.error(f"Error: {e}")
     finally:
         if video_path and video_path.exists():
             video_path.unlink()
