@@ -6,6 +6,7 @@ from aiogram import Router, F
 from aiogram.types import Message, ContentType
 from aiogram.filters import Command
 
+from src.bot.handlers.utils import handle_video_exception
 from src.bot.states import SpeechVideoStates
 from src.bot.utils import send_llm_advice
 from src.db.connection import get_db_connection
@@ -77,11 +78,7 @@ async def handle_speech_video(message: Message, state: FSMContext):
         await state.clear()
 
     except Exception as e:
-        await message.answer(
-            "⚠️ Произошла ошибка при обработке вашего видео. "
-            "Попробуйте отправить еще раз."
-        )
-        print(f"Error processing video: {e}")
+        await handle_video_exception(e, message)
     finally:
         if video_path.exists():
             video_path.unlink()

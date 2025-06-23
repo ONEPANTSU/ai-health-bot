@@ -5,6 +5,7 @@ from aiogram.types import Message, ContentType
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 
+from src.bot.handlers.utils import handle_video_exception
 from src.bot.is_test_allowed import is_task_day_allowed
 from src.bot.states import PlankStates
 from src.bot.utils import send_llm_advice
@@ -98,8 +99,7 @@ async def handle_plank_video(message: Message, state: FSMContext):
         await state.clear()
 
     except Exception as e:
-        await message.answer("❌ Ошибка при сохранении видео")
-        print(f"Error: {e}")
+        await handle_video_exception(e, message)
     finally:
         if video_path and video_path.exists():
             video_path.unlink()
