@@ -45,8 +45,3 @@ make docker-run
 - `/daily` — ежедневная анкета.
 - `/greeting`, `/nutrition`, `/supplements`, `/safety`, `/subjective_health`, `/mindfulness`, `/close_environment`, `/body_measurements`.
 - Медиа‑таски: `/face`, `/eye`, `/tongue`, `/hands`, `/feet`, `/full_body`, `/balance`, `/plank`, `/running`, `/squats`, `/walking`, `/neck`, `/picking_up`, `/breathing`, `/rest_breathing`, `/pressure`, `/speach`, `/reaction`, `/blood`, `/checkups`, `/feedback`.
-
-## Рассылка и BDD‑логика
-- Расписание опирается на глобальную дату старта тестирования и часовой пояс пациента; задания раскиданы по дням (1–28).
-- Проверка заполнения ежедневной анкеты — если нет записи за локальный день, отправляется напоминание.
-- LLM‑ответы сохраняются отдельно и могут использоваться для ежедневных/недельных дайджестов .
